@@ -242,19 +242,21 @@ const SUBJECTS = [
   { id: "bio", name: "Biologie" }, { id: "his", name: "Histoire" }, { id: "phy", name: "Physique" },
   { id: "chi", name: "Chimie" }, { id: "geo", name: "Géographie" }, { id: "art", name: "Arts visuels" },
 ];
-const KEEP = 2, SESSION = 15, RUNLEN = 20, LS = "revisions-v2", OLD = "matu-revisions-v1";
+const KEEP = 2, SESSION = 15, RUNLEN = 50, LS = "revisions-v2", OLD = "matu-revisions-v1";
 const IN_FRAME = (() => { try { return window.top !== window; } catch (e) { return true; } })();
 const STANDALONE = (() => { try { return navigator.standalone === true || matchMedia("(display-mode: standalone)").matches; } catch (e) { return false; } })();
 const DATA = {};
 const $app = document.getElementById("app");
 
 /* ---------- état et enregistrement ---------- */
-function blank() { return { v: 2, p: {}, xp: 0, days: {}, goal: 20, sound: true, run: {}, p4: 0, best: 0, mt: 0, hint: false }; }
+function blank() { return { v: 3, p: {}, xp: 0, days: {}, goal: 50, sound: true, run: {}, p4: 0, best: 0, mt: 0, hint: false }; }
 function load() {
   let s = null;
   try { s = JSON.parse(localStorage.getItem(LS) || "null"); } catch (e) {}
   if (!s) { s = blank(); try { const o = JSON.parse(localStorage.getItem(OLD) || "null"); if (o && typeof o === "object") s.p = o; } catch (e) {} }
-  return Object.assign(blank(), s);
+  s = Object.assign(blank(), s);
+  if ((s.v || 2) < 3) { s.goal = 50; s.v = 3; }  // méthode du 22 octobre 2026 : 50 questions par jour
+  return s;
 }
 let S = load();
 let DB = null, UID = null, dbOK = true;
@@ -508,7 +510,7 @@ function renderSubject() {
   <section class="hero">${ring(x.p, 104)}<div class="facts"><span><b>${fmt(x.good)}</b> justes sur ${fmt(x.total)}</span><span><b>${fmt(x.seen)}</b> déjà vues</span><span><b>${errs}</b> erreur${errs > 1 ? "s" : ""} à corriger</span></div></section>
   <div class="modes">
     <button class="btn mode" data-a="mix"><span class="mi">${I.play}</span><span><b>Série rapide</b><small>${SESSION} questions, d'abord les nouvelles et les ratées</small></span><span class="go">${I.chev}</span></button>
-    <button class="btn mode" data-a="all"><span class="mi ink">${I.all}</span><span><b>Tout le programme</b><small>${done ? "Terminé ! Touche pour recommencer" : `${fmt(r.i)} / ${fmt(r.order.length)} · reprends où tu t'es arrêté`}</small><span class="bar"><i style="width:${pct(r.i, r.order.length)}%"></i></span></span><span class="go">${I.chev}</span></button>
+    <button class="btn mode" data-a="all"><span class="mi ink">${I.all}</span><span><b>Tout le programme</b><small>${done ? "Terminé ! Touche pour recommencer" : `${fmt(r.i)} / ${fmt(r.order.length)} · séries de ${RUNLEN}, reprends où tu t'es arrêté`}</small><span class="bar"><i style="width:${pct(r.i, r.order.length)}%"></i></span></span><span class="go">${I.chev}</span></button>
     <button class="btn mode" data-a="err" ${errs ? "" : "disabled"}><span class="mi ink">${I.redo}</span><span><b>Mes erreurs · ${errs}</b><small>${errs ? `Une question en sort après ${KEEP} bonnes réponses de suite` : "Aucune erreur pour l'instant"}</small></span><span class="go">${I.chev}</span></button>
   </div>
   <div class="sec"><h2>Thèmes</h2><span class="muted" style="font-size:.85rem">${D.chapters.length} thèmes</span></div>
@@ -641,7 +643,7 @@ function openSettings() {
   const m = document.createElement("div"); m.className = "modal"; m.setAttribute("role", "dialog"); m.setAttribute("aria-label", "Réglages");
   m.innerHTML = `<div class="panel">
     <div class="row"><h2 class="grow">Réglages</h2><button class="icbtn" data-a="closem" aria-label="Fermer">${I.close}</button></div>
-    <div class="set"><b>Objectif du jour</b><div class="seg">${[10, 20, 30, 50].map(g => `<button class="btn ${S.goal === g ? "on" : ""}" data-a="goal" data-g="${g}">${g}</button>`).join("")}</div><p class="note">Nombre de questions par jour pour garder ta série de jours.</p></div>
+    <div class="set"><b>Objectif du jour</b><div class="seg">${[30, 50, 80, 100].map(g => `<button class="btn ${S.goal === g ? "on" : ""}" data-a="goal" data-g="${g}">${g}</button>`).join("")}</div><p class="note">Nombre de questions par jour pour garder ta série de jours.</p></div>
     <div class="set"><div class="row"><b class="grow disp">Sons</b><button class="switch" role="switch" aria-checked="${S.sound}" aria-label="Sons" data-a="sound"></button></div></div>
     <div class="set"><b>Tout effacer</b><button class="btn" data-a="wipe" data-c="0" style="justify-content:center">Remettre toute l'appli à zéro</button></div>
     <p class="note">${esc(storeLabel)}</p>
