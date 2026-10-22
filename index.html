@@ -1,0 +1,720 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Révisions</title>
+<meta name="description" content="Révisions de la maturité suisse, partiel 1 : QCM par matière, thème et objectif.">
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Révisions">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&display=swap">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}[hidden]{display:none!important}img{max-width:100%}</style>
+</head>
+<body>
+<style>
+:root{
+  --bg:#FFFFFF; --ink:#0B0B0B; --muted:#6B6B6B; --line:#E3E3E3; --soft:#F4F4F4; --card:#FFFFFF;
+  --lip:#BDBDBD; --plip:#4A4A4A;
+  --ok:#139A47; --okbg:#E7F7ED; --ko:#E0383E; --kobg:#FDECEC;
+  --bio:#16A34A; --his:#E0393E; --phy:#2F6BEB; --chi:#8B3FE0; --geo:#0A94AA; --art:#E2457A;
+  --logoring:transparent; --acc:var(--ink);
+  font-family:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#000000; --ink:#F3F3F3; --muted:#9A9A9A; --line:#2B2B2B; --soft:#131313; --card:#0B0B0B;
+  --lip:#3A3A3A; --plip:#9C9C9C; --logoring:#3A3A3A;
+  --ok:#2EC266; --okbg:#0D2618; --ko:#FF5E64; --kobg:#2C1013;
+  --bio:#22B35E; --his:#F0484D; --phy:#4A80F5; --chi:#9D57EE; --geo:#16AAC0; --art:#F05A8C;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#000000; --ink:#F3F3F3; --muted:#9A9A9A; --line:#2B2B2B; --soft:#131313; --card:#0B0B0B;
+  --lip:#3A3A3A; --plip:#9C9C9C; --logoring:#3A3A3A;
+  --ok:#2EC266; --okbg:#0D2618; --ko:#FF5E64; --kobg:#2C1013;
+  --bio:#22B35E; --his:#F0484D; --phy:#4A80F5; --chi:#9D57EE; --geo:#16AAC0; --art:#F05A8C;
+  color-scheme:dark}
+*{box-sizing:border-box}
+html,body{background:var(--bg);color:var(--ink)}
+body{margin:0;font-size:16px;line-height:1.45;-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:#000;z-index:70}
+#app{max-width:560px;margin:0 auto;padding-block:14px 48px}
+h1,h2,h3,.disp{font-family:"Bricolage Grotesque","Atkinson Hyperlegible",system-ui,sans-serif;letter-spacing:-.01em;margin:0;text-wrap:balance}
+button{font:inherit;color:inherit}
+.muted{color:var(--muted)}
+.row{display:flex;align-items:center;gap:12px}
+.grow{flex:1;min-width:0}
+svg{display:block}
+
+/* boutons façon jeu */
+.btn{appearance:none;display:flex;align-items:center;justify-content:center;gap:10px;width:100%;border:2px solid var(--line);background:var(--card);
+  border-radius:16px;padding:14px 16px;font-weight:700;font-size:1rem;box-shadow:0 4px 0 var(--lip);cursor:pointer;
+  transition:transform .07s ease,box-shadow .07s ease;touch-action:manipulation;text-align:left}
+.btn:active:not(:disabled){transform:translateY(3px);box-shadow:0 1px 0 var(--lip)}
+.btn:disabled{opacity:.45;cursor:default}
+.btn.primary{background:var(--ink);color:var(--bg);border-color:var(--ink);box-shadow:0 4px 0 var(--plip);justify-content:center;text-align:center}
+.btn.primary:active{box-shadow:0 1px 0 var(--plip)}
+.btn.acc{background:var(--acc);color:#fff;border-color:color-mix(in srgb,var(--acc) 78%,#000);box-shadow:0 4px 0 color-mix(in srgb,var(--acc) 70%,#000);justify-content:center;text-align:center}
+.btn.acc:active{box-shadow:0 1px 0 color-mix(in srgb,var(--acc) 70%,#000)}
+.btn.small{padding:9px 12px;font-size:.9rem;border-radius:12px;width:auto;box-shadow:0 3px 0 var(--lip)}
+.icbtn{appearance:none;width:44px;height:44px;flex:none;display:grid;place-items:center;border:2px solid var(--line);background:var(--card);border-radius:14px;box-shadow:0 3px 0 var(--lip);cursor:pointer;padding:0}
+.icbtn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--lip)}
+.icbtn svg{width:22px;height:22px}
+
+/* logo */
+.logo{width:40px;height:40px;border-radius:11px;background:#000;display:grid;place-items:center;flex:none;box-shadow:0 0 0 2px var(--logoring)}
+.logo svg{width:32px;height:32px}
+
+/* accueil */
+.top{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.top h1{font-size:2rem;font-weight:800;line-height:1}
+.hello{font-size:1.02rem;margin:-6px 0 16px}
+.hud{background:#000;color:#fff;border-radius:22px;padding:16px;display:grid;gap:14px}
+:root[data-theme="dark"] .hud{background:var(--soft);border:2px solid var(--line)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .hud{background:var(--soft);border:2px solid var(--line)}}
+.lvl{display:flex;align-items:center;gap:12px}
+.lvlnum{width:52px;height:52px;border-radius:50%;background:#fff;color:#000;display:grid;place-items:center;flex:none;font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:1.45rem}
+.lvl b{font-family:"Bricolage Grotesque",sans-serif;font-size:1.15rem}
+.bar{display:block;height:12px;border-radius:99px;background:rgba(127,127,127,.28);overflow:hidden}
+.bar>i{display:block;height:100%;border-radius:99px;background:currentColor;transition:width .5s ease}
+.hud .bar>i{background:#fff}
+.lvl small{opacity:.75;font-size:.85rem}
+.chips{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.chip{background:rgba(255,255,255,.1);border-radius:14px;padding:10px 8px;display:grid;justify-items:center;gap:2px;text-align:center}
+.chip svg{width:22px;height:22px}
+.chip b{font-family:"Bricolage Grotesque",sans-serif;font-size:1.25rem;line-height:1.1}
+.chip span{font-size:.75rem;opacity:.75;line-height:1.2}
+.sec{display:flex;align-items:baseline;justify-content:space-between;margin:26px 0 12px}
+.sec h2{font-size:1.25rem;font-weight:800}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.subj{appearance:none;border:0;text-align:left;cursor:pointer;background:var(--c);color:#fff;border-radius:20px;padding:14px 14px 13px;min-height:150px;
+  display:flex;flex-direction:column;gap:6px;box-shadow:0 5px 0 color-mix(in srgb,var(--c) 66%,#000);position:relative;overflow:hidden;touch-action:manipulation;transition:transform .07s,box-shadow .07s}
+.subj:active{transform:translateY(4px);box-shadow:0 1px 0 color-mix(in srgb,var(--c) 66%,#000)}
+.subj::after{content:"";position:absolute;right:-26px;top:-26px;width:86px;height:86px;border-radius:50%;border:12px solid rgba(255,255,255,.16)}
+.subj .nm{display:block;font-family:"Bricolage Grotesque",sans-serif;font-size:1.08rem;font-weight:800;line-height:1.15;padding-right:26px}
+.subj .big{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:2.3rem;line-height:1;margin-top:auto}
+.subj .bar{height:8px;background:rgba(0,0,0,.22)}
+.subj .bar>i{background:#fff}
+.subj small{font-size:.8rem;opacity:.92;line-height:1.25}
+.btn.cta{display:grid;grid-template-columns:auto 1fr auto;gap:12px;text-align:left;justify-content:stretch;padding:14px 16px}
+.cta .mi{width:44px;height:44px;border-radius:50%;background:var(--bg);color:var(--ink);display:grid;place-items:center}
+.cta .mi svg{width:20px;height:20px;margin-left:2px}
+.cta b{display:block;font-family:"Bricolage Grotesque",sans-serif;font-size:1.15rem;line-height:1.2}
+.cta small{display:block;font-weight:400;opacity:.75;font-size:.85rem}
+.cta>svg{width:22px;height:22px;opacity:.7}
+.hint{border:2px dashed var(--line);border-radius:18px;padding:14px;margin-top:22px;display:grid;gap:8px;font-size:.95rem}
+.hint b{font-family:"Bricolage Grotesque",sans-serif;font-size:1.05rem}
+.foot{font-size:.82rem;margin-top:22px;text-align:center}
+
+/* matière */
+.head{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.head h1{font-size:1.55rem;font-weight:800}
+.hero{background:var(--acc);color:#fff;border-radius:22px;padding:16px;display:flex;align-items:center;gap:16px;box-shadow:0 5px 0 color-mix(in srgb,var(--acc) 66%,#000)}
+.hero .facts{display:grid;gap:4px;font-size:.95rem}
+.hero .facts b{font-family:"Bricolage Grotesque",sans-serif;font-size:1.1rem}
+.modes{display:grid;gap:12px;margin-top:20px}
+.mode{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px}
+.mode .mi{width:44px;height:44px;border-radius:50%;background:var(--acc);color:#fff;display:grid;place-items:center}
+.mode .mi svg{width:22px;height:22px}
+.mode .mi.ink{background:var(--ink);color:var(--bg)}
+.mode b{display:block;font-family:"Bricolage Grotesque",sans-serif;font-size:1.08rem;line-height:1.2}
+.mode small{display:block;color:var(--muted);font-weight:400;font-size:.85rem;line-height:1.3}
+.mode .bar{height:6px;margin-top:6px;color:var(--acc)}
+.mode .go{width:22px;height:22px;color:var(--muted)}
+.chap{border:2px solid var(--line);border-radius:18px;overflow:hidden;background:var(--card)}
+.chap+.chap{margin-top:10px}
+.chap>button{appearance:none;border:0;background:none;width:100%;text-align:left;padding:12px 14px;display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;cursor:pointer}
+.num{width:34px;height:34px;border-radius:50%;border:3px solid var(--acc);display:grid;place-items:center;font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:.95rem;flex:none}
+.num.full{background:var(--acc);color:#fff}
+.chap .t{font-weight:700;line-height:1.25}
+.chap .bar{height:6px;margin-top:7px;color:var(--acc)}
+.stars{display:flex;gap:1px;justify-content:flex-end}
+.stars svg{width:15px;height:15px}
+.stars .on{color:var(--acc)} .stars .off{color:var(--line)}
+.pc{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;text-align:right;font-size:.95rem}
+.chap .body{padding:2px 14px 14px;display:grid;gap:10px}
+.obj{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;padding-top:10px;border-top:1px solid var(--line)}
+.obj p{margin:0;font-size:.9rem;line-height:1.35}
+.obj p span{display:block;font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px}
+.danger{margin-top:26px;display:flex;justify-content:center}
+
+/* quiz */
+.qtop{display:flex;align-items:center;gap:12px}
+.qtop .bar{flex:1;height:16px;color:var(--acc);background:var(--soft);border:2px solid var(--line)}
+.qtop .cnt{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;min-width:44px;text-align:right}
+.combo{display:flex;align-items:center;justify-content:center;gap:8px;margin:16px 0 4px}
+.slot{width:24px;height:24px;border-radius:50%;border:3px solid var(--line);position:relative}
+.slot.on{border-color:var(--acc);background:var(--acc);animation:drop .38s cubic-bezier(.3,1.6,.5,1)}
+.slot.out{animation:pop .3s ease}
+.pw{font-family:"Times New Roman",Georgia,"Latin Modern Roman",serif;font-style:italic;font-weight:700;font-size:1.7rem;line-height:1;margin-left:6px;color:var(--acc);min-width:38px}
+.pw sup{font-style:normal;font-size:.6em;vertical-align:.75em;margin-left:1px}
+@keyframes drop{0%{transform:translateY(-26px);opacity:0}100%{transform:none;opacity:1}}
+@keyframes pop{0%{transform:scale(1.25)}100%{transform:none}}
+.ql{font-size:.74rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700;margin:18px 0 8px;line-height:1.35}
+.tag{display:inline-block;background:var(--acc);color:#fff;border-radius:99px;padding:2px 10px;font-size:.72rem;margin-bottom:6px;letter-spacing:.04em}
+.qq{font-family:"Bricolage Grotesque",sans-serif;font-size:1.32rem;font-weight:700;line-height:1.28;margin:0 0 18px;text-wrap:pretty}
+.opts{display:grid;gap:11px}
+.opt{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;font-weight:400;padding:13px 14px}
+.opt .k{width:32px;height:32px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-weight:700;font-size:.9rem;flex:none}
+.opt .mk{width:24px;height:24px}
+.opt.ok{background:var(--okbg);border-color:var(--ok);box-shadow:0 4px 0 var(--ok)}
+.opt.ok .k{background:var(--ok);border-color:var(--ok);color:#fff}
+.opt.ko{background:var(--kobg);border-color:var(--ko);box-shadow:0 4px 0 var(--ko);animation:shake .35s}
+.opt.ko .k{background:var(--ko);border-color:var(--ko);color:#fff}
+.opt:disabled{opacity:1;cursor:default}
+.opt.dim{opacity:.45}
+.opt.ok .mk{color:var(--ok)} .opt.ko .mk{color:var(--ko)}
+@keyframes shake{0%,100%{transform:none}20%{transform:translateX(-7px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
+.spacer{height:260px}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:40;padding:18px max(16px,env(safe-area-inset-left,0px)) calc(18px + env(safe-area-inset-bottom,0px));
+  border-top:3px solid var(--fc);background:var(--fb);animation:up .25s ease;max-height:72vh;overflow:auto}
+.sheet .in{max-width:560px;margin:0 auto;display:grid;gap:10px}
+.sheet h3{font-size:1.25rem;line-height:1.2;font-weight:800;color:var(--fc);display:flex;align-items:center;gap:10px}
+.sheet h3 svg{width:30px;height:30px;flex:none}
+.sheet h3 .xp{margin-left:auto;white-space:nowrap;flex:none;font-size:.95rem;background:var(--fc);color:#fff;border-radius:99px;padding:3px 10px}
+.sheet p{margin:0;font-size:.98rem}
+.sheet .btn{margin-top:4px}
+@keyframes up{from{transform:translateY(100%)}to{transform:none}}
+
+/* fin de série */
+.end{text-align:center;display:grid;gap:14px;justify-items:center;padding-top:8px}
+.end h1{font-size:2.2rem;font-weight:800}
+.score{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:4.2rem;line-height:1}
+.score small{font-size:1.6rem;color:var(--muted)}
+.pills{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.pill{border:2px solid var(--line);border-radius:99px;padding:6px 12px;font-weight:700;font-size:.9rem;display:flex;align-items:center;gap:6px}
+.pill svg{width:18px;height:18px}
+.endbtns{display:grid;gap:12px;width:100%;margin-top:6px}
+.miss{width:100%;text-align:left;border:2px solid var(--line);border-radius:18px;padding:4px 14px}
+.miss summary{cursor:pointer;font-weight:700;padding:10px 0}
+.miss .m{border-top:1px solid var(--line);padding:10px 0;font-size:.92rem;display:grid;gap:4px}
+.miss .m b{color:var(--ok)}
+.goalbox{width:100%;border:2px solid var(--line);border-radius:18px;padding:12px 14px;display:grid;gap:8px;text-align:left}
+.goalbox .bar{color:var(--ink)}
+
+/* effets */
+#fx{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:60}
+.disc{position:absolute;top:-40px;border-radius:50%;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(115vh) rotate(160deg)}}
+.float{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 62px);transform:translateX(-50%);font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:1.6rem;color:var(--acc);animation:rise 1s ease forwards;pointer-events:none;z-index:61}
+@keyframes rise{0%{opacity:0;transform:translate(-50%,10px)}20%{opacity:1}100%{opacity:0;transform:translate(-50%,-50px)}}
+.banner{position:fixed;left:50%;top:38%;transform:translate(-50%,-50%);z-index:62;pointer-events:none;background:#000;color:#fff;border-radius:22px;padding:16px 22px;text-align:center;animation:boom 1.5s ease forwards;box-shadow:0 8px 0 var(--acc)}
+.banner b{display:block;font-family:"Bricolage Grotesque",sans-serif;font-size:1.7rem;font-weight:800;letter-spacing:.01em;white-space:nowrap}
+.banner .bx{width:78px;height:78px;margin:0 auto 4px;color:var(--acc)}
+.banner .bx svg{width:100%;height:100%}
+.banner .dots{display:flex;gap:6px;justify-content:center;margin-bottom:8px}
+.banner .dots i{width:20px;height:20px;border-radius:50%;background:var(--acc)}
+@keyframes boom{0%{opacity:0;transform:translate(-50%,-50%) scale(.6)}15%{opacity:1;transform:translate(-50%,-50%) scale(1.06)}25%{transform:translate(-50%,-50%) scale(1)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-60%) scale(1)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* réglages */
+.modal{position:fixed;inset:0;z-index:80;background:rgba(0,0,0,.5);display:flex;align-items:flex-end;justify-content:center}
+.panel{background:var(--bg);width:100%;max-width:560px;border-radius:24px 24px 0 0;padding:18px max(16px,env(safe-area-inset-left,0px)) calc(22px + env(safe-area-inset-bottom,0px));max-height:88vh;overflow:auto;display:grid;gap:18px;animation:up .25s ease}
+.panel h2{font-size:1.4rem;font-weight:800}
+.set{display:grid;gap:8px}
+.set>b{font-family:"Bricolage Grotesque",sans-serif;font-size:1.05rem}
+.seg{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.seg .btn{justify-content:center;padding:10px 6px;text-align:center}
+.seg .btn.on{background:var(--ink);color:var(--bg);border-color:var(--ink);box-shadow:0 4px 0 var(--plip)}
+.switch{appearance:none;width:58px;height:34px;border-radius:99px;background:var(--line);border:0;position:relative;cursor:pointer;flex:none;padding:0}
+.switch::after{content:"";position:absolute;top:4px;left:4px;width:26px;height:26px;border-radius:50%;background:#fff;transition:left .15s;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.switch[aria-checked="true"]{background:var(--ink)}
+.switch[aria-checked="true"]::after{left:28px;background:var(--bg)}
+.note{font-size:.85rem;color:var(--muted);margin:0}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);border-radius:14px;padding:12px 16px;font-weight:700;z-index:90;max-width:calc(100% - 32px);animation:up .2s ease}
+.splash{min-height:70vh;display:grid;place-items:center;text-align:center;gap:14px}
+.splash .logo{width:84px;height:84px;border-radius:22px}
+.splash .logo svg{width:64px;height:64px}
+.splash .logo circle.f{animation:blink 1.2s infinite}
+@keyframes blink{50%{opacity:.25}}
+</style>
+<div id="app"><div class="splash"><div><div class="logo" style="margin:0 auto 14px"><svg viewBox="0 0 1024 1024" aria-hidden="true"><path d="M601.1574539130436 727.9047902608696C601.1574539130436 713.9427728695653 588.192723478261 713.9427728695653 573.2334191304349 713.9427728695653C553.28768 713.9427728695653 549.2985321739131 713.9427728695653 544.3120973913044 727.9047902608696C518.3826365217392 811.6768946086958 458.54541913043477 847.5792250434783 415.66208 847.5792250434783C364.80044521739126 847.5792250434783 364.80044521739126 808.6850337391305 364.80044521739126 798.7121641739132C364.80044521739126 792.7284424347827 364.80044521739126 782.7555728695653 367.7923060869565 770.7881293913044L421.64580173913043 549.3904250434783C430.62138434782605 511.49352069565225 458.54541913043477 460.6318859130435 498.43689739130434 460.6318859130435C503.423332173913 460.6318859130435 523.3690713043479 460.6318859130435 539.3256626086957 476.58847721739136C488.464027826087 495.5369293913044 488.464027826087 540.4148424347827 488.464027826087 544.4039902608697C488.464027826087 569.3361641739132 507.41248 590.2791902608697 538.3283756521739 590.2791902608697C575.2279930434784 590.2791902608697 610.1330365217392 559.3632946086957 610.1330365217392 512.490807652174C610.1330365217392 459.6345989565218 560.2686886956523 424.7295554782609 501.4287582608696 424.7295554782609C478.49115826086955 424.7295554782609 439.5969669565217 430.71327721739135 399.70548869565215 477.5857641739131C376.7678886956522 445.67258156521746 332.8872626086956 424.7295554782609 274.047332173913 424.7295554782609C150.38374956521733 424.7295554782609 84.56281043478256 548.3931380869566 84.56281043478256 580.3063206956522C84.56281043478256 594.2683380869566 97.52754086956517 594.2683380869566 112.48684521739126 594.2683380869566C132.43258434782604 594.2683380869566 136.42173217391303 594.2683380869566 141.4081669565217 580.3063206956522C167.33762782608693 494.53964243478265 229.16941913043473 460.6318859130435 269.0608973913043 460.6318859130435C319.922532173913 460.6318859130435 319.922532173913 498.52879026086964 319.922532173913 509.49894678260875C319.922532173913 530.4419728695652 306.9578017391304 582.3008946086957 297.98221913043477 618.2032250434784L266.0690365217391 747.8505293913045C252.10701913043476 802.7013120000001 227.1748452173913 847.5792250434783 186.28607999999997 847.5792250434783C183.29421913043473 847.5792250434783 161.3539060869565 847.5792250434783 146.3946017391304 831.6226337391305C197.25623652173908 812.6741815652175 197.25623652173908 767.7962685217392 197.25623652173908 763.8071206956522C197.25623652173908 738.8749467826087 178.30778434782604 717.9319206956523 147.39188869565214 717.9319206956523C109.49498434782605 717.9319206956523 75.58722782608692 749.845103304348 75.58722782608692 795.7203033043479C75.58722782608692 847.5792250434783 123.45700173913039 883.4815554782609 184.29150608695647 883.4815554782609C235.15314086956522 883.4815554782609 270.05818434782606 849.5737989565218 286.01477565217385 830.6253467826087C308.9523756521739 864.533103304348 355.82486260869564 883.4815554782609 410.67564521739126 883.4815554782609C535.3365147826088 883.4815554782609 601.1574539130436 759.8179728695653 601.1574539130436 727.9047902608696Z" fill="#fff"/><path d="M948.412772173913 525.6549954782608V496.59405356521734H888.4359346086957V429.1974010434782H948.412772173913V400.13645913043473H888.4359346086957V139.8246177391303C888.4359346086957 123.13003408695641 887.1992987826087 120.03844452173905 869.8863972173913 120.03844452173905C856.9017210434783 120.03844452173905 856.2834031304349 120.65676243478248 848.8635881739131 129.93153113043468L633.0706365217391 400.13645913043473V429.1974010434782H811.1461954782609V496.59405356521734H741.8945892173913V525.6549954782608C765.3906699130434 523.8000417391304 821.6576 523.8000417391304 848.2452702608696 523.8000417391304C872.9779867826087 523.8000417391304 926.7716452173913 523.8000417391304 948.412772173913 525.6549954782608ZM817.9476925217391 400.13645913043473H665.223168L817.9476925217391 208.45790608695643Z" fill="#fff"/></svg></div><b class="disp" style="font-size:1.4rem">Révisions</b><p class="muted" style="margin:6px 0 0">Chargement des questions…</p></div></div></div>
+<div id="fx" aria-hidden="true"></div>
+<div id="live" class="sr" aria-live="polite" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)"></div>
+<script>
+"use strict";
+const SUBJECTS = [
+  { id: "bio", name: "Biologie" }, { id: "his", name: "Histoire" }, { id: "phy", name: "Physique" },
+  { id: "chi", name: "Chimie" }, { id: "geo", name: "Géographie" }, { id: "art", name: "Arts visuels" },
+];
+const KEEP = 2, SESSION = 15, RUNLEN = 20, LS = "revisions-v2", OLD = "matu-revisions-v1";
+const IN_FRAME = (() => { try { return window.top !== window; } catch (e) { return true; } })();
+const STANDALONE = (() => { try { return navigator.standalone === true || matchMedia("(display-mode: standalone)").matches; } catch (e) { return false; } })();
+const DATA = {};
+const $app = document.getElementById("app");
+
+/* ---------- état et enregistrement ---------- */
+function blank() { return { v: 2, p: {}, xp: 0, days: {}, goal: 20, sound: true, run: {}, p4: 0, best: 0, mt: 0, hint: false }; }
+function load() {
+  let s = null;
+  try { s = JSON.parse(localStorage.getItem(LS) || "null"); } catch (e) {}
+  if (!s) { s = blank(); try { const o = JSON.parse(localStorage.getItem(OLD) || "null"); if (o && typeof o === "object") s.p = o; } catch (e) {} }
+  return Object.assign(blank(), s);
+}
+let S = load();
+let DB = null, UID = null, dbOK = true;
+let storeLabel = IN_FRAME ? "Ta progression est gardée sur cet appareil." : "Ta progression est gardée sur ce téléphone.";
+const dirty = new Set(); let flushT = null, flushing = Promise.resolve();
+function lsSave() { try { localStorage.setItem(LS, JSON.stringify(S)); } catch (e) {} }
+function save(sid) {
+  if (sid) dirty.add(sid);
+  dirty.add("meta"); S.mt = Date.now(); lsSave();
+  if (DB && dbOK) { clearTimeout(flushT); flushT = setTimeout(flush, 1500); }
+}
+function metaOf(s) { return { xp: s.xp, days: s.days, goal: s.goal, sound: s.sound, run: s.run, p4: s.p4, best: s.best, hint: s.hint }; }
+function mergeP(a, b) {
+  const out = { ...(a || {}) };
+  for (const [k, v] of Object.entries(b || {})) if (v && (!out[k] || (v.t || 0) > (out[k].t || 0))) out[k] = v;
+  return out;
+}
+function mergeState(remote, rt) {
+  for (const sid of Object.keys(remote.p || {})) S.p[sid] = mergeP(S.p[sid], remote.p[sid]);
+  const m = remote.meta;
+  if (m) {
+    S.xp = Math.max(S.xp || 0, m.xp || 0); S.p4 = Math.max(S.p4 || 0, m.p4 || 0); S.best = Math.max(S.best || 0, m.best || 0);
+    for (const [d, n] of Object.entries(m.days || {})) S.days[d] = Math.max(S.days[d] || 0, n);
+    if ((rt || 0) > (S.mt || 0)) { S.goal = m.goal || S.goal; S.sound = m.sound ?? S.sound; S.run = m.run || S.run; S.hint = m.hint ?? S.hint; }
+  }
+}
+async function initStore() {
+  try {
+    const cl = window.claude; if (!cl?.use) return;
+    const [db, user] = await Promise.all([cl.use("db"), cl.use("user")]);
+    if (!db || !user) return;
+    const id = await user.id(); if (!id) return;
+    DB = db; UID = id;
+    const remote = { p: {}, meta: null }; let rt = 0;
+    for (const s of SUBJECTS) {
+      try { const snap = await DB.doc(`data/users/${UID}/${s.id}`).get(); if (snap?.exists) remote.p[s.id] = (snap.data() || {}).p || {}; } catch (e) {}
+    }
+    try { const snap = await DB.doc(`data/users/${UID}/meta`).get(); if (snap?.exists) { const d = snap.data() || {}; remote.meta = d.m || null; rt = d.t || 0; } } catch (e) {}
+    mergeState(remote, rt); lsSave();
+    storeLabel = "Ta progression est gardée dans ton compte Claude.";
+    render();
+  } catch (e) {}
+}
+function flush() {
+  const list = [...dirty]; dirty.clear();
+  flushing = flushing.then(async () => {
+    for (const k of list) {
+      try {
+        if (k === "meta") await DB.doc(`data/users/${UID}/meta`).set({ m: metaOf(S), t: S.mt });
+        else await DB.doc(`data/users/${UID}/${k}`).set({ p: S.p[k] || {}, t: Date.now() });
+      } catch (e) {
+        if (["invalid_argument", "not_granted", "revoked"].includes(e?.code)) { dbOK = false; storeLabel = "Ta progression est gardée sur cet appareil."; }
+        else if (e?.code === "unavailable") { dirty.add(k); setTimeout(flush, 4000); }
+      }
+    }
+  });
+}
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden" && dirty.size && DB && dbOK) { clearTimeout(flushT); flush(); } });
+
+/* ---------- outils ---------- */
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const pct = (a, b) => b ? Math.round(100 * a / b) : 0;
+const fmt = n => n.toLocaleString("fr-CH");
+function shuffle(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+const rnd = a => a[Math.floor(Math.random() * a.length)];
+function today(d = new Date()) { return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
+function streak() {
+  const g = S.goal; let n = 0; const d = new Date();
+  if ((S.days[today(d)] || 0) < g) d.setDate(d.getDate() - 1);
+  while ((S.days[today(d)] || 0) >= g) { n++; d.setDate(d.getDate() - 1); }
+  return n;
+}
+function lvl(xp) { let n = 1; while (xp >= 50 * n * (n + 1)) n++; const lo = 50 * (n - 1) * n, hi = 50 * n * (n + 1); return { n, lo, hi, f: (xp - lo) / (hi - lo) }; }
+function de(low) { return /^[aeiouhéèêàâîôû]/i.test(low) ? "d'" + low : "de " + low; }
+function setAcc(sid) { document.documentElement.style.setProperty("--acc", sid ? `var(--${sid})` : "var(--ink)"); }
+function st(sid, qid) { return (S.p[sid] || {})[qid]; }
+function stats(sid, ids) {
+  let seen = 0, good = 0, errs = 0;
+  for (const q of ids) { const s = st(sid, q); if (!s) continue; seen++; if (s.l) good++; if (s.e) errs++; }
+  return { total: ids.length, seen, good, errs, p: pct(good, ids.length) };
+}
+const allIds = sid => DATA[sid] ? DATA[sid].questions.map(q => q.id) : [];
+const errIds = sid => allIds(sid).filter(id => st(sid, id)?.e);
+const chapIds = (sid, n) => DATA[sid].questions.filter(q => q.o.split(".")[0] === String(n)).map(q => q.id);
+const objIds = (sid, o) => DATA[sid].questions.filter(q => q.o === o).map(q => q.id);
+function qById(sid, id) { const D = DATA[sid]; if (!D._ix) D._ix = Object.fromEntries(D.questions.map(q => [q.id, q])); return D._ix[id]; }
+function pick(sid, ids, n) {
+  const r = ids.map(id => { const s = st(sid, id); const score = !s ? 0 : (!s.l ? 1 : 2 + (s.s || 0)); return { id, score, t: s?.t || 0, r: Math.random() }; });
+  r.sort((a, b) => a.score - b.score || a.t - b.t || a.r - b.r);
+  return shuffle(r.slice(0, n).map(x => x.id));
+}
+function label(sid, o) {
+  const D = DATA[sid]; const ch = D.chapters.find(c => c.objectives.some(x => x.k === o)); if (!ch) return "";
+  return `Fiche ${o.split(".")[0]} ${de(D.low)} · ${ch.name} · objectif ${o.split(".")[1]}`;
+}
+function starsOf(p) { return p >= 90 ? 3 : p >= 60 ? 2 : p >= 30 ? 1 : 0; }
+function runOf(sid) {
+  const ids = allIds(sid); let r = S.run[sid];
+  if (!r || !Array.isArray(r.order)) r = { order: shuffle(ids), i: 0 };
+  const set = new Set(ids); const known = new Set(r.order);
+  r.order = r.order.filter(id => set.has(id)).concat(shuffle(ids.filter(id => !known.has(id))));
+  r.i = Math.min(r.i || 0, r.order.length);
+  S.run[sid] = r; return r;
+}
+
+/* ---------- icônes ---------- */
+const I = {
+  back: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>',
+  close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  gear: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>',
+  flame: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c1 3.5-1.6 5.2-1.6 8 0 1.3.9 2.3 2.1 2.3 1.4 0 2.1-1.2 1.8-3 2.4 1.6 3.7 4 3.7 6.4A6 6 0 0 1 12 22a6 6 0 0 1-6-6.3c0-4.8 4.5-7.3 6-13.7z"/></svg>',
+  bolt: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 2L4 13.5h6.5L9.5 22 20 9.5h-6.6z"/></svg>',
+  target: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/></svg>',
+  play: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13a1 1 0 0 0 1.5.9l10-6.5a1 1 0 0 0 0-1.7l-10-6.6A1 1 0 0 0 8 5.5z"/></svg>',
+  all: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg>',
+  redo: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>',
+  chev: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>',
+  down: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>',
+  ok: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+  ko: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg>',
+  okc: '<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="15" fill="currentColor"/><path d="M9 16.5l4.5 4.5L23 11.5" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  koc: '<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="15" fill="currentColor"/><path d="M11 11l10 10M21 11L11 21" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round"/></svg>',
+  star: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.8l2.8 5.8 6.3.9-4.6 4.4 1.1 6.3L12 17.2l-5.6 3 1.1-6.3L2.9 9.5l6.3-.9z"/></svg>',
+};
+const LOGO = '<svg viewBox="0 0 1024 1024" aria-hidden="true"><path d="M601.1574539130436 727.9047902608696C601.1574539130436 713.9427728695653 588.192723478261 713.9427728695653 573.2334191304349 713.9427728695653C553.28768 713.9427728695653 549.2985321739131 713.9427728695653 544.3120973913044 727.9047902608696C518.3826365217392 811.6768946086958 458.54541913043477 847.5792250434783 415.66208 847.5792250434783C364.80044521739126 847.5792250434783 364.80044521739126 808.6850337391305 364.80044521739126 798.7121641739132C364.80044521739126 792.7284424347827 364.80044521739126 782.7555728695653 367.7923060869565 770.7881293913044L421.64580173913043 549.3904250434783C430.62138434782605 511.49352069565225 458.54541913043477 460.6318859130435 498.43689739130434 460.6318859130435C503.423332173913 460.6318859130435 523.3690713043479 460.6318859130435 539.3256626086957 476.58847721739136C488.464027826087 495.5369293913044 488.464027826087 540.4148424347827 488.464027826087 544.4039902608697C488.464027826087 569.3361641739132 507.41248 590.2791902608697 538.3283756521739 590.2791902608697C575.2279930434784 590.2791902608697 610.1330365217392 559.3632946086957 610.1330365217392 512.490807652174C610.1330365217392 459.6345989565218 560.2686886956523 424.7295554782609 501.4287582608696 424.7295554782609C478.49115826086955 424.7295554782609 439.5969669565217 430.71327721739135 399.70548869565215 477.5857641739131C376.7678886956522 445.67258156521746 332.8872626086956 424.7295554782609 274.047332173913 424.7295554782609C150.38374956521733 424.7295554782609 84.56281043478256 548.3931380869566 84.56281043478256 580.3063206956522C84.56281043478256 594.2683380869566 97.52754086956517 594.2683380869566 112.48684521739126 594.2683380869566C132.43258434782604 594.2683380869566 136.42173217391303 594.2683380869566 141.4081669565217 580.3063206956522C167.33762782608693 494.53964243478265 229.16941913043473 460.6318859130435 269.0608973913043 460.6318859130435C319.922532173913 460.6318859130435 319.922532173913 498.52879026086964 319.922532173913 509.49894678260875C319.922532173913 530.4419728695652 306.9578017391304 582.3008946086957 297.98221913043477 618.2032250434784L266.0690365217391 747.8505293913045C252.10701913043476 802.7013120000001 227.1748452173913 847.5792250434783 186.28607999999997 847.5792250434783C183.29421913043473 847.5792250434783 161.3539060869565 847.5792250434783 146.3946017391304 831.6226337391305C197.25623652173908 812.6741815652175 197.25623652173908 767.7962685217392 197.25623652173908 763.8071206956522C197.25623652173908 738.8749467826087 178.30778434782604 717.9319206956523 147.39188869565214 717.9319206956523C109.49498434782605 717.9319206956523 75.58722782608692 749.845103304348 75.58722782608692 795.7203033043479C75.58722782608692 847.5792250434783 123.45700173913039 883.4815554782609 184.29150608695647 883.4815554782609C235.15314086956522 883.4815554782609 270.05818434782606 849.5737989565218 286.01477565217385 830.6253467826087C308.9523756521739 864.533103304348 355.82486260869564 883.4815554782609 410.67564521739126 883.4815554782609C535.3365147826088 883.4815554782609 601.1574539130436 759.8179728695653 601.1574539130436 727.9047902608696Z" fill="#fff"/><path d="M948.412772173913 525.6549954782608V496.59405356521734H888.4359346086957V429.1974010434782H948.412772173913V400.13645913043473H888.4359346086957V139.8246177391303C888.4359346086957 123.13003408695641 887.1992987826087 120.03844452173905 869.8863972173913 120.03844452173905C856.9017210434783 120.03844452173905 856.2834031304349 120.65676243478248 848.8635881739131 129.93153113043468L633.0706365217391 400.13645913043473V429.1974010434782H811.1461954782609V496.59405356521734H741.8945892173913V525.6549954782608C765.3906699130434 523.8000417391304 821.6576 523.8000417391304 848.2452702608696 523.8000417391304C872.9779867826087 523.8000417391304 926.7716452173913 523.8000417391304 948.412772173913 525.6549954782608ZM817.9476925217391 400.13645913043473H665.223168L817.9476925217391 208.45790608695643Z" fill="#fff"/></svg>';
+const XF = '<svg viewBox="0 0 1024 1024" aria-hidden="true"><path d="M601.1574539130436 727.9047902608696C601.1574539130436 713.9427728695653 588.192723478261 713.9427728695653 573.2334191304349 713.9427728695653C553.28768 713.9427728695653 549.2985321739131 713.9427728695653 544.3120973913044 727.9047902608696C518.3826365217392 811.6768946086958 458.54541913043477 847.5792250434783 415.66208 847.5792250434783C364.80044521739126 847.5792250434783 364.80044521739126 808.6850337391305 364.80044521739126 798.7121641739132C364.80044521739126 792.7284424347827 364.80044521739126 782.7555728695653 367.7923060869565 770.7881293913044L421.64580173913043 549.3904250434783C430.62138434782605 511.49352069565225 458.54541913043477 460.6318859130435 498.43689739130434 460.6318859130435C503.423332173913 460.6318859130435 523.3690713043479 460.6318859130435 539.3256626086957 476.58847721739136C488.464027826087 495.5369293913044 488.464027826087 540.4148424347827 488.464027826087 544.4039902608697C488.464027826087 569.3361641739132 507.41248 590.2791902608697 538.3283756521739 590.2791902608697C575.2279930434784 590.2791902608697 610.1330365217392 559.3632946086957 610.1330365217392 512.490807652174C610.1330365217392 459.6345989565218 560.2686886956523 424.7295554782609 501.4287582608696 424.7295554782609C478.49115826086955 424.7295554782609 439.5969669565217 430.71327721739135 399.70548869565215 477.5857641739131C376.7678886956522 445.67258156521746 332.8872626086956 424.7295554782609 274.047332173913 424.7295554782609C150.38374956521733 424.7295554782609 84.56281043478256 548.3931380869566 84.56281043478256 580.3063206956522C84.56281043478256 594.2683380869566 97.52754086956517 594.2683380869566 112.48684521739126 594.2683380869566C132.43258434782604 594.2683380869566 136.42173217391303 594.2683380869566 141.4081669565217 580.3063206956522C167.33762782608693 494.53964243478265 229.16941913043473 460.6318859130435 269.0608973913043 460.6318859130435C319.922532173913 460.6318859130435 319.922532173913 498.52879026086964 319.922532173913 509.49894678260875C319.922532173913 530.4419728695652 306.9578017391304 582.3008946086957 297.98221913043477 618.2032250434784L266.0690365217391 747.8505293913045C252.10701913043476 802.7013120000001 227.1748452173913 847.5792250434783 186.28607999999997 847.5792250434783C183.29421913043473 847.5792250434783 161.3539060869565 847.5792250434783 146.3946017391304 831.6226337391305C197.25623652173908 812.6741815652175 197.25623652173908 767.7962685217392 197.25623652173908 763.8071206956522C197.25623652173908 738.8749467826087 178.30778434782604 717.9319206956523 147.39188869565214 717.9319206956523C109.49498434782605 717.9319206956523 75.58722782608692 749.845103304348 75.58722782608692 795.7203033043479C75.58722782608692 847.5792250434783 123.45700173913039 883.4815554782609 184.29150608695647 883.4815554782609C235.15314086956522 883.4815554782609 270.05818434782606 849.5737989565218 286.01477565217385 830.6253467826087C308.9523756521739 864.533103304348 355.82486260869564 883.4815554782609 410.67564521739126 883.4815554782609C535.3365147826088 883.4815554782609 601.1574539130436 759.8179728695653 601.1574539130436 727.9047902608696Z" fill="currentColor"/><path d="M948.412772173913 525.6549954782608V496.59405356521734H888.4359346086957V429.1974010434782H948.412772173913V400.13645913043473H888.4359346086957V139.8246177391303C888.4359346086957 123.13003408695641 887.1992987826087 120.03844452173905 869.8863972173913 120.03844452173905C856.9017210434783 120.03844452173905 856.2834031304349 120.65676243478248 848.8635881739131 129.93153113043468L633.0706365217391 400.13645913043473V429.1974010434782H811.1461954782609V496.59405356521734H741.8945892173913V525.6549954782608C765.3906699130434 523.8000417391304 821.6576 523.8000417391304 848.2452702608696 523.8000417391304C872.9779867826087 523.8000417391304 926.7716452173913 523.8000417391304 948.412772173913 525.6549954782608ZM817.9476925217391 400.13645913043473H665.223168L817.9476925217391 208.45790608695643Z" fill="currentColor"/></svg>';
+function ring(p, size = 96, w = 11, fg = "#fff", track = "rgba(0,0,0,.22)", txt = "#fff") {
+  const r = (size - w) / 2, c = 2 * Math.PI * r, off = c * (1 - p / 100);
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" aria-hidden="true" style="flex:none"><circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="${track}" stroke-width="${w}"/><circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="${fg}" stroke-width="${w}" stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${off}" transform="rotate(-90 ${size / 2} ${size / 2})"/><text x="50%" y="50%" dy=".35em" text-anchor="middle" fill="${txt}" font-family="Bricolage Grotesque, sans-serif" font-weight="800" font-size="${size * .26}">${p}%</text></svg>`;
+}
+const stars = n => `<span class="stars" aria-label="${n} étoile${n > 1 ? "s" : ""} sur 3">${[0, 1, 2].map(i => `<span class="${i < n ? "on" : "off"}">${I.star}</span>`).join("")}</span>`;
+
+/* ---------- sons ---------- */
+let AC = null;
+function ac() { if (!AC) { try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} } if (AC && AC.state === "suspended") AC.resume(); return AC; }
+function tone(f, t0, d, type = "sine", g = .12) {
+  const a = ac(); if (!a) return; const t = a.currentTime + t0;
+  const o = a.createOscillator(), v = a.createGain(); o.type = type; o.frequency.setValueAtTime(f, t);
+  v.gain.setValueAtTime(0.0001, t); v.gain.exponentialRampToValueAtTime(g, t + .015); v.gain.exponentialRampToValueAtTime(.0001, t + d);
+  o.connect(v); v.connect(a.destination); o.start(t); o.stop(t + d + .03);
+}
+const SFX = {
+  ok() { tone(784, 0, .12); tone(1175, .07, .2); },
+  ko() { tone(196, 0, .2, "triangle", .16); tone(147, .1, .26, "triangle", .14); },
+  p4() { [523, 659, 784, 1047].forEach((f, i) => tone(f, i * .085, .22, "square", .05)); tone(1319, .36, .4, "sine", .1); },
+  goal() { [659, 784, 988, 1319].forEach((f, i) => tone(f, i * .1, .3, "triangle", .1)); },
+  end() { [523, 784, 1047].forEach((f, i) => tone(f, i * .12, .35, "sine", .1)); },
+  tap() { tone(600, 0, .05, "sine", .04); },
+};
+function sfx(n) { if (S.sound) try { SFX[n](); } catch (e) {} }
+
+/* ---------- effets ---------- */
+const fx = document.getElementById("fx");
+const reduced = () => { try { return matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) { return false; } };
+function rain(colors, n = 40) {
+  if (reduced()) return;
+  for (let i = 0; i < n; i++) {
+    const d = document.createElement("i"); const s = 12 + Math.random() * 18;
+    d.className = "disc"; d.style.cssText = `left:${Math.random() * 100}%;width:${s}px;height:${s}px;background:${rnd(colors)};animation-duration:${1.5 + Math.random() * 1.6}s;animation-delay:${Math.random() * .7}s`;
+    fx.appendChild(d); setTimeout(() => d.remove(), 4200);
+  }
+}
+function floatTxt(t) { if (reduced()) return; const e = document.createElement("div"); e.className = "float"; e.textContent = t; document.body.appendChild(e); setTimeout(() => e.remove(), 1100); }
+function banner(title, sub, glyph) {
+  const e = document.createElement("div"); e.className = "banner";
+  e.innerHTML = `${glyph ? `<div class="bx">${XF}</div>` : '<div class="dots"><i></i><i></i><i></i><i></i></div>'}<b>${esc(title)}</b><span>${esc(sub)}</span>`;
+  document.body.appendChild(e); setTimeout(() => e.remove(), 1600);
+}
+function toast(t) { const e = document.createElement("div"); e.className = "toast"; e.textContent = t; document.body.appendChild(e); setTimeout(() => e.remove(), 2600); }
+const say = t => { const l = document.getElementById("live"); if (l) l.textContent = t; };
+
+/* ---------- navigation ---------- */
+let V = { name: "home" };
+let Q = null;
+function go(v) { fx.innerHTML = ""; V = v; try { history.pushState({ n: v.name }, ""); } catch (e) {} render(); window.scrollTo(0, 0); }
+window.addEventListener("popstate", () => {
+  fx.innerHTML = "";
+  if (document.querySelector(".modal")) { closeModal(); return; }
+  if (V.name === "quiz" || V.name === "end") { V = Q && Q.sid ? { name: "subject", sid: Q.sid, open: new Set() } : { name: "home" }; Q = null; }
+  else if (V.name === "subject") V = { name: "home" };
+  render(); window.scrollTo(0, 0);
+});
+function render() {
+  if (V.name === "home") return renderHome();
+  if (V.name === "subject") return renderSubject();
+  if (V.name === "quiz") return renderQuiz();
+  if (V.name === "end") return renderEnd();
+}
+
+/* ---------- accueil ---------- */
+function hello() {
+  const h = new Date().getHours(), s = streak(), t = S.days[today()] || 0;
+  if (t >= S.goal) return "Objectif du jour atteint. Une série de plus ?";
+  if (s >= 2) return `${s} jours d'affilée. Ne casse pas ta série !`;
+  if (t > 0) return `Encore ${S.goal - t} question${S.goal - t > 1 ? "s" : ""} pour l'objectif du jour.`;
+  return h < 12 ? "Bonjour ! Une petite série pour bien commencer ?" : h < 18 ? "Une série maintenant ?" : "Une série avant de dormir ?";
+}
+function renderHome() {
+  setAcc(null);
+  const L = lvl(S.xp), t = S.days[today()] || 0, sk = streak();
+  const cards = SUBJECTS.map(s => {
+    const D = DATA[s.id];
+    if (!D) return `<button class="subj" style="--c:var(--${s.id})" disabled><span class="nm">${s.name}</span><small>Pas encore chargé</small></button>`;
+    const x = stats(s.id, allIds(s.id));
+    return `<button class="subj" style="--c:var(--${s.id})" data-a="subj" data-s="${s.id}"><span class="nm">${s.name}</span><span class="big">${x.p}%</span><span class="bar"><i style="width:${x.p}%"></i></span><small>${fmt(x.total)} questions${x.errs ? ` · ${x.errs} erreur${x.errs > 1 ? "s" : ""}` : ""}</small></button>`;
+  }).join("");
+  const showHint = !IN_FRAME && !STANDALONE && !S.hint;
+  $app.innerHTML = `
+  <div class="top"><div class="logo">${LOGO}</div><h1 class="grow">Révisions</h1><button class="icbtn" data-a="settings" aria-label="Réglages">${I.gear}</button></div>
+  <p class="hello">${esc(hello())}</p>
+  <section class="hud" aria-label="Ta progression">
+    <div class="lvl"><div class="lvlnum" aria-label="Niveau ${L.n}">${L.n}</div><div class="grow"><b>Niveau ${L.n}</b><div class="bar" style="margin:6px 0 4px"><i style="width:${Math.round(L.f * 100)}%"></i></div><small>${fmt(L.hi - S.xp)} XP avant le niveau ${L.n + 1}</small></div></div>
+    <div class="chips">
+      <div class="chip">${I.flame}<b>${sk}</b><span>jour${sk > 1 ? "s" : ""} d'affilée</span></div>
+      <div class="chip">${I.bolt}<b>${fmt(S.xp)}</b><span>XP</span></div>
+      <div class="chip">${I.target}<b>${Math.min(t, 999)}/${S.goal}</b><span>aujourd'hui</span></div>
+    </div>
+  </section>
+  <div style="margin-top:16px"><button class="btn primary cta" data-a="express"><span class="mi">${I.play}</span><span class="grow"><b>Série express</b><small>${SESSION} questions, toutes les matières mélangées</small></span>${I.chev}</button></div>
+  <div class="sec"><h2>Matières</h2><span class="muted" style="font-size:.85rem">${fmt(SUBJECTS.reduce((n, s) => n + (DATA[s.id]?.questions.length || 0), 0))} questions</span></div>
+  <div class="grid">${cards}</div>
+  ${showHint ? installHint() : ""}
+  <p class="foot muted">${esc(storeLabel)}</p>`;
+}
+let deferredPrompt = null;
+window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferredPrompt = e; if (V.name === "home") render(); });
+function installHint() {
+  const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  return `<div class="hint"><b>Installe Révisions sur ton téléphone</b>
+  ${deferredPrompt ? `<button class="btn primary" data-a="install">Installer l'appli</button>` :
+    ios ? `<span>Dans Safari, touche le bouton Partager, puis « Sur l'écran d'accueil ».</span>` : `<span>Dans le menu du navigateur, choisis « Installer l'application » ou « Ajouter à l'écran d'accueil ».</span>`}
+  <button class="btn small" data-a="hidehint" style="justify-self:start">C'est fait</button></div>`;
+}
+
+/* ---------- matière ---------- */
+function renderSubject() {
+  const sid = V.sid, D = DATA[sid]; setAcc(sid);
+  const ids = allIds(sid), x = stats(sid, ids), errs = x.errs, r = runOf(sid);
+  const chaps = D.chapters.map(c => {
+    const cids = chapIds(sid, c.n), cx = stats(sid, cids), open = V.open.has(c.n);
+    const objs = open ? c.objectives.map(o => {
+      const ox = stats(sid, objIds(sid, o.k));
+      return `<div class="obj"><p><span>Objectif ${o.k.split(".")[1]} · ${ox.p} %</span>${esc(o.t)}</p><button class="btn small" data-a="obj" data-o="${o.k}" aria-label="S'entraîner sur l'objectif ${o.k}">${I.play.replace("<svg", '<svg width="16" height="16"')}</button></div>`;
+    }).join("") : "";
+    return `<div class="chap"><button data-a="chap" data-n="${c.n}" aria-expanded="${open}"><span class="num ${cx.p >= 90 ? "full" : ""}">${c.n}</span><span class="grow"><span class="t">${esc(c.name)}</span><span class="bar"><i style="width:${cx.p}%"></i></span></span><span>${stars(starsOf(cx.p))}<span class="pc">${cx.p}%</span></span></button>
+    ${open ? `<div class="body"><button class="btn acc" data-a="chapgo" data-n="${c.n}">S'entraîner sur ce thème · ${cids.length} questions</button>${objs}</div>` : ""}</div>`;
+  }).join("");
+  const done = r.i >= r.order.length;
+  $app.innerHTML = `
+  <div class="head"><button class="icbtn" data-a="home" aria-label="Retour">${I.back}</button><h1 class="grow">${esc(D.name)}</h1></div>
+  <section class="hero">${ring(x.p, 104)}<div class="facts"><span><b>${fmt(x.good)}</b> justes sur ${fmt(x.total)}</span><span><b>${fmt(x.seen)}</b> déjà vues</span><span><b>${errs}</b> erreur${errs > 1 ? "s" : ""} à corriger</span></div></section>
+  <div class="modes">
+    <button class="btn mode" data-a="mix"><span class="mi">${I.play}</span><span><b>Série rapide</b><small>${SESSION} questions, d'abord les nouvelles et les ratées</small></span><span class="go">${I.chev}</span></button>
+    <button class="btn mode" data-a="all"><span class="mi ink">${I.all}</span><span><b>Tout le programme</b><small>${done ? "Terminé ! Touche pour recommencer" : `${fmt(r.i)} / ${fmt(r.order.length)} · reprends où tu t'es arrêté`}</small><span class="bar"><i style="width:${pct(r.i, r.order.length)}%"></i></span></span><span class="go">${I.chev}</span></button>
+    <button class="btn mode" data-a="err" ${errs ? "" : "disabled"}><span class="mi ink">${I.redo}</span><span><b>Mes erreurs · ${errs}</b><small>${errs ? `Une question en sort après ${KEEP} bonnes réponses de suite` : "Aucune erreur pour l'instant"}</small></span><span class="go">${I.chev}</span></button>
+  </div>
+  <div class="sec"><h2>Thèmes</h2><span class="muted" style="font-size:.85rem">${D.chapters.length} thèmes</span></div>
+  ${chaps}
+  <div class="danger"><button class="btn small" data-a="resetsubj" data-c="0">Remettre ${esc(D.name.toLowerCase())} à zéro</button></div>`;
+}
+
+/* ---------- séries ---------- */
+function startQuiz(mode, sid, arg, replace) {
+  let items = [], title = "";
+  if (mode === "express") {
+    for (const s of SUBJECTS) if (DATA[s.id]) items.push(...pick(s.id, allIds(s.id), 3).map(id => ({ sid: s.id, id })));
+    items = shuffle(items).slice(0, SESSION); title = "Série express"; sid = null;
+  } else if (mode === "mix") { items = pick(sid, allIds(sid), SESSION).map(id => ({ sid, id })); title = "Série rapide"; }
+  else if (mode === "err") { items = pick(sid, errIds(sid), SESSION).map(id => ({ sid, id })); title = "Mes erreurs"; }
+  else if (mode === "chap") { items = pick(sid, chapIds(sid, arg), SESSION).map(id => ({ sid, id })); title = DATA[sid].chapters.find(c => c.n === arg).name; }
+  else if (mode === "obj") { items = shuffle(objIds(sid, arg)).map(id => ({ sid, id })); title = "Objectif " + arg; }
+  else if (mode === "all") {
+    const r = runOf(sid); if (r.i >= r.order.length) { r.order = shuffle(allIds(sid)); r.i = 0; }
+    items = r.order.slice(r.i, r.i + RUNLEN).map(id => ({ sid, id })); title = "Tout le programme"; save();
+  }
+  if (!items.length) { toast("Aucune question ici pour l'instant."); return; }
+  Q = { mode, sid, arg, title, items, i: 0, res: [], combo: 0, best: 0, p4: 0, xp: 0, cur: null, done: false, t0: S.days[today()] || 0 };
+  ac(); fx.innerHTML = "";
+  if (replace) { V = { name: "quiz" }; render(); window.scrollTo(0, 0); } else go({ name: "quiz" });
+}
+function curItem() {
+  const it = Q.items[Q.i];
+  if (!Q.cur || Q.cur.k !== Q.i) Q.cur = { k: Q.i, order: shuffle([0, 1, 2, 3]), pick: null };
+  return { it, q: qById(it.sid, it.id) };
+}
+function renderQuiz() {
+  const { it, q } = curItem(); setAcc(it.sid);
+  const n = Q.items.length, answered = Q.cur.pick !== null;
+  const fill = Q.combo % 4 === 0 && Q.combo > 0 && answered ? 4 : Q.combo % 4;
+  const anim = Q.cur.anim;
+  const opts = Q.cur.order.map((ai, j) => {
+    let cls = "", mk = "";
+    if (answered) {
+      if (ai === 0) { cls = "ok"; mk = I.ok; }
+      else if (ai === Q.cur.pick) { cls = "ko"; mk = I.ko; }
+      else cls = "dim";
+    }
+    return `<button class="btn opt ${cls}" data-a="ans" data-i="${ai}" ${answered ? "disabled" : ""}><span class="k">${"ABCD"[j]}</span><span>${esc(q.a[ai])}</span><span class="mk">${mk}</span></button>`;
+  }).join("");
+  const ok = answered && Q.cur.pick === 0;
+  const sheet = answered ? `<div class="sheet" style="--fc:var(--${ok ? "ok" : "ko"});--fb:var(--${ok ? "okbg" : "kobg"})" role="status"><div class="in">
+    <h3>${ok ? I.okc : I.koc}${esc(Q.cur.msg)}<span class="xp">+${Q.cur.gain} XP</span></h3>
+    ${ok ? "" : `<p><b>Bonne réponse :</b> ${esc(q.a[0])}</p>`}
+    <p>${esc(q.x)}</p>
+    <button class="btn ${ok ? "acc" : "primary"}" data-a="next" style="${ok ? "--acc:var(--ok)" : ""}">${Q.i + 1 >= n ? "Voir mon score" : "Continuer"}</button></div></div>` : "";
+  $app.innerHTML = `
+  <div class="qtop"><button class="icbtn" data-a="quit" aria-label="Arrêter la série">${I.close}</button><div class="bar"><i style="width:${pct(Q.i + (answered ? 1 : 0), n)}%"></i></div><span class="cnt">${Q.i + 1}/${n}</span></div>
+  ${slotsHTML(fill, anim)}
+  <p class="ql">${Q.mode === "express" ? `<span class="tag">${esc(DATA[it.sid].name)}</span><br>` : ""}${esc(label(it.sid, q.o))}</p>
+  <h2 class="qq">${esc(q.q)}</h2>
+  <div class="opts">${opts}</div>
+  ${answered ? '<div class="spacer"></div>' : ""}${sheet}`;
+  if (answered) { const b = $app.querySelector('[data-a="next"]'); if (b) b.focus({ preventScroll: true }); }
+}
+function slotsHTML(fill, anim) {
+  return `<div class="combo" aria-label="Série en cours : ${fill} sur 4">${[0, 1, 2, 3].map(i => {
+    const on = i < fill; const a = anim === "out" ? " out" : "";
+    const st = on && !(anim === "in" && i === fill - 1) ? ' style="animation:none"' : "";
+    return `<span class="slot${on ? " on" : ""}${a}"${st}></span>`;
+  }).join("")}<span class="pw" aria-hidden="true">x<sup>${fill}</sup></span></div>`;
+}
+const OKM = ["Bien joué !", "Exact !", "Parfait !", "Bravo !", "Juste !", "Excellent !", "Yes !"];
+const KOM = ["Pas cette fois", "Raté, retiens bien celle-là", "Faux, tu la reverras", "Oups"];
+function answer(ai) {
+  if (!Q || Q.cur?.pick !== null && Q.cur?.pick !== undefined) return;
+  const { it } = curItem(); const ok = ai === 0;
+  Q.cur.pick = ai;
+  const p = S.p[it.sid] || (S.p[it.sid] = {});
+  const s = p[it.id] || { n: 0, k: 0, s: 0, e: false, l: false, t: 0 };
+  s.n++; s.t = Date.now();
+  if (ok) { s.k++; s.s = (s.s || 0) + 1; s.l = true; if (s.e && s.s >= KEEP) s.e = false; }
+  else { s.s = 0; s.e = true; s.l = false; }
+  p[it.id] = s;
+  let gain = ok ? 10 : 2, p4 = false;
+  if (ok) { Q.combo++; Q.best = Math.max(Q.best, Q.combo); if (Q.combo % 4 === 0) { p4 = true; gain += 20; Q.p4++; S.p4 = (S.p4 || 0) + 1; } Q.cur.anim = "in"; }
+  else { Q.cur.anim = Q.combo > 0 ? "out" : null; Q.combo = 0; }
+  S.best = Math.max(S.best || 0, Q.best);
+  const before = S.days[today()] || 0; S.days[today()] = before + 1;
+  const L0 = lvl(S.xp).n; S.xp += gain; Q.xp += gain; const L1 = lvl(S.xp).n;
+  if (Q.mode === "all") { const r = runOf(Q.sid); r.i = Math.min(r.i + 1, r.order.length); }
+  Q.res.push({ sid: it.sid, id: it.id, ok });
+  Q.cur.gain = gain; Q.cur.msg = ok ? rnd(OKM) : rnd(KOM);
+  save(it.sid);
+  sfx(ok ? "ok" : "ko"); say(ok ? "Juste" : "Faux");
+  renderQuiz();
+  floatTxt("+" + gain);
+  if (p4) { setTimeout(() => { sfx("p4"); banner("PUISSANCE 4 !", "4 bonnes réponses de suite · +20 XP", true); rain([getComputedStyle(document.documentElement).getPropertyValue(`--${it.sid}`).trim() || "#000", "#000", "#fff"], 22); }, 250); }
+  if (before < S.goal && before + 1 >= S.goal) setTimeout(() => { sfx("goal"); banner("OBJECTIF DU JOUR", `${S.goal} questions, bravo !`); }, p4 ? 1700 : 300);
+  if (L1 > L0) setTimeout(() => { sfx("goal"); banner(`NIVEAU ${L1}`, "Tu montes de niveau !"); }, p4 ? 3300 : 1700);
+}
+function next() {
+  if (!Q) return;
+  if (Q.i + 1 >= Q.items.length) { Q.done = true; sfx("end"); V = { name: "end" }; render(); window.scrollTo(0, 0); return; }
+  Q.i++; Q.cur = null; renderQuiz(); window.scrollTo(0, 0);
+}
+function renderEnd() {
+  const good = Q.res.filter(r => r.ok).length, n = Q.res.length, p = pct(good, n);
+  setAcc(Q.sid);
+  const title = n === 0 ? "Série arrêtée" : p === 100 ? "Sans faute !" : p >= 80 ? "Excellent !" : p >= 60 ? "Bien joué !" : p >= 40 ? "Ça progresse" : "Courage, on remet ça";
+  const t = S.days[today()] || 0;
+  const miss = Q.res.filter(r => !r.ok).map(r => { const q = qById(r.sid, r.id); return `<div class="m"><span>${esc(q.q)}</span><span><b>✓ ${esc(q.a[0])}</b></span><span class="muted">${esc(q.x)}</span></div>`; }).join("");
+  let runInfo = "";
+  if (Q.mode === "all") { const r = runOf(Q.sid); runInfo = `<div class="goalbox"><b>Tout le programme · ${fmt(r.i)} / ${fmt(r.order.length)}</b><div class="bar" style="color:var(--acc)"><i style="width:${pct(r.i, r.order.length)}%"></i></div>${r.i >= r.order.length ? "<span>Tu as fait toutes les questions de la matière !</span>" : ""}</div>`; }
+  $app.innerHTML = `
+  <div class="end">
+    <h1>${title}</h1>
+    <div class="score">${good}<small> / ${n}</small></div>
+    <div class="pills"><span class="pill">${I.bolt} +${Q.xp} XP</span><span class="pill">${XF} ${Q.p4} × Puissance 4</span><span class="pill">${I.flame} série max ${Q.best}</span></div>
+    ${runInfo}
+    <div class="goalbox"><b>Objectif du jour · ${t} / ${S.goal}</b><div class="bar"><i style="width:${Math.min(100, pct(t, S.goal))}%"></i></div>${t >= S.goal ? "<span>Objectif atteint, ta série de jours continue.</span>" : `<span>Encore ${S.goal - t} question${S.goal - t > 1 ? "s" : ""} aujourd'hui.</span>`}</div>
+    <div class="endbtns">
+      <button class="btn acc" data-a="again">${Q.mode === "all" && runOf(Q.sid).i < runOf(Q.sid).order.length ? "Continuer le programme" : "Encore une série"}</button>
+      <button class="btn" data-a="leave" style="justify-content:center">Retour</button>
+    </div>
+    ${miss ? `<details class="miss"><summary>À revoir · ${n - good} question${n - good > 1 ? "s" : ""}</summary>${miss}</details>` : ""}
+  </div>`;
+  if (n && p >= 60) rain([getComputedStyle(document.documentElement).getPropertyValue("--acc").trim() || "#000", "#000", "#9a9a9a"].map(c => c.startsWith("var") ? "#000" : c), p >= 90 ? 60 : 34);
+}
+
+/* ---------- réglages ---------- */
+function closeModal() { document.querySelector(".modal")?.remove(); }
+function openSettings() {
+  closeModal();
+  const m = document.createElement("div"); m.className = "modal"; m.setAttribute("role", "dialog"); m.setAttribute("aria-label", "Réglages");
+  m.innerHTML = `<div class="panel">
+    <div class="row"><h2 class="grow">Réglages</h2><button class="icbtn" data-a="closem" aria-label="Fermer">${I.close}</button></div>
+    <div class="set"><b>Objectif du jour</b><div class="seg">${[10, 20, 30, 50].map(g => `<button class="btn ${S.goal === g ? "on" : ""}" data-a="goal" data-g="${g}">${g}</button>`).join("")}</div><p class="note">Nombre de questions par jour pour garder ta série de jours.</p></div>
+    <div class="set"><div class="row"><b class="grow disp">Sons</b><button class="switch" role="switch" aria-checked="${S.sound}" aria-label="Sons" data-a="sound"></button></div></div>
+    <div class="set"><b>Tout effacer</b><button class="btn" data-a="wipe" data-c="0" style="justify-content:center">Remettre toute l'appli à zéro</button></div>
+    <p class="note">${esc(storeLabel)}</p>
+  </div>`;
+  m.addEventListener("click", e => { if (e.target === m) closeModal(); });
+  document.body.appendChild(m);
+}
+function armed(b, label) {
+  if (b.dataset.c === "1") return true;
+  b.dataset.c = "1"; b.dataset.l = b.textContent; b.textContent = label;
+  setTimeout(() => { if (b.isConnected) { b.dataset.c = "0"; b.textContent = b.dataset.l; } }, 3500);
+  return false;
+}
+
+/* ---------- actions ---------- */
+const ACT = {
+  subj: b => { ac(); go({ name: "subject", sid: b.dataset.s, open: new Set() }); },
+  home: () => history.back(),
+  settings: () => openSettings(),
+  closem: () => closeModal(),
+  express: () => startQuiz("express"),
+  mix: () => startQuiz("mix", V.sid),
+  all: () => startQuiz("all", V.sid),
+  err: () => startQuiz("err", V.sid),
+  chap: b => { const n = +b.dataset.n; V.open.has(n) ? V.open.delete(n) : V.open.add(n); renderSubject(); },
+  chapgo: b => startQuiz("chap", V.sid, +b.dataset.n),
+  obj: b => startQuiz("obj", V.sid, b.dataset.o),
+  ans: b => answer(+b.dataset.i),
+  next: () => next(),
+  quit: () => { if (Q && Q.res.length) { V = { name: "end" }; render(); window.scrollTo(0, 0); } else history.back(); },
+  again: () => startQuiz(Q.mode, Q.sid, Q.arg, true),
+  leave: () => history.back(),
+  hidehint: () => { S.hint = true; save(); render(); },
+  install: async () => { if (!deferredPrompt) return; deferredPrompt.prompt(); try { await deferredPrompt.userChoice; } catch (e) {} deferredPrompt = null; render(); },
+  goal: b => { S.goal = +b.dataset.g; save(); openSettings(); render(); },
+  sound: b => { S.sound = !S.sound; save(); b.setAttribute("aria-checked", S.sound); if (S.sound) sfx("ok"); },
+  wipe: b => {
+    if (!armed(b, "Touche encore pour tout effacer")) return;
+    const keep = { goal: S.goal, sound: S.sound, hint: S.hint }; S = Object.assign(blank(), keep);
+    for (const s of SUBJECTS) dirty.add(s.id); save(); closeModal(); render(); toast("Tout est remis à zéro.");
+  },
+  resetsubj: b => {
+    if (!armed(b, "Touche encore pour confirmer")) return;
+    S.p[V.sid] = {}; delete S.run[V.sid]; save(V.sid); render(); toast("Matière remise à zéro.");
+  },
+};
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-a]"); if (!b || b.disabled) return;
+  const f = ACT[b.dataset.a]; if (f) f(b);
+});
+document.addEventListener("keydown", e => {
+  if (V.name !== "quiz" || !Q || e.metaKey || e.ctrlKey || e.altKey) return;
+  if (document.querySelector(".modal")) return;
+  const k = e.key.toUpperCase();
+  if (Q.cur && Q.cur.pick === null && "ABCD1234".includes(k) && k.length === 1) {
+    const j = "ABCD".includes(k) ? "ABCD".indexOf(k) : +k - 1; answer(Q.cur.order[j]); e.preventDefault();
+  } else if (Q.cur && Q.cur.pick !== null && (e.key === "Enter" || e.key === " ")) { next(); e.preventDefault(); }
+});
+
+/* ---------- démarrage ---------- */
+async function boot() {
+  try { history.replaceState({ n: "home" }, ""); } catch (e) {}
+  const res = await Promise.allSettled(SUBJECTS.map(s => fetch(`${s.id}.json`).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }).then(d => { DATA[s.id] = d; })));
+  if (res.every(r => r.status === "rejected")) {
+    $app.innerHTML = `<div class="splash"><div><div class="logo" style="margin:0 auto 14px">${LOGO}</div><b class="disp" style="font-size:1.3rem">Impossible de charger les questions</b><p class="muted">Vérifie ta connexion, puis relance l'appli.</p><button class="btn primary" onclick="location.reload()">Réessayer</button></div></div>`;
+    return;
+  }
+  render();
+  initStore();
+  if ("serviceWorker" in navigator && !IN_FRAME && /^https?:$/.test(location.protocol)) { try { navigator.serviceWorker.register("sw.js"); } catch (e) {} }
+}
+boot();
+</script>
+
+</body>
+</html>
