@@ -147,14 +147,15 @@ svg{display:block}
 .qtop{display:flex;align-items:center;gap:12px}
 .qtop .bar{flex:1;height:16px;color:var(--acc);background:var(--soft);border:2px solid var(--line)}
 .qtop .cnt{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;min-width:44px;text-align:right}
-.combo{display:flex;align-items:center;justify-content:center;gap:8px;margin:16px 0 4px}
-.slot{width:24px;height:24px;border-radius:50%;border:3px solid var(--line);position:relative}
-.slot.on{border-color:var(--acc);background:var(--acc);animation:drop .38s cubic-bezier(.3,1.6,.5,1)}
-.slot.out{animation:pop .3s ease}
-.pw{font-family:"Times New Roman",Georgia,"Latin Modern Roman",serif;font-style:italic;font-weight:700;font-size:1.7rem;line-height:1;margin-left:6px;color:var(--acc);min-width:38px}
-.pw sup{font-style:normal;font-size:.6em;vertical-align:.75em;margin-left:1px}
-@keyframes drop{0%{transform:translateY(-26px);opacity:0}100%{transform:none;opacity:1}}
-@keyframes pop{0%{transform:scale(1.25)}100%{transform:none}}
+.combo{display:flex;align-items:center;justify-content:center;gap:10px;margin:14px 0 2px}
+.combo small{font-size:.8rem;color:var(--muted);font-weight:700}
+.pw{display:inline-block;font-family:"Times New Roman",Georgia,"Latin Modern Roman",serif;font-style:italic;font-weight:700;font-size:2.3rem;line-height:1;color:var(--acc)}
+.pw sup{font-style:normal;font-size:.58em;vertical-align:.8em;margin-left:2px}
+.pw.zero{color:var(--line)}
+.pw.up{animation:pop .4s cubic-bezier(.3,1.6,.5,1)}
+.pw.down{animation:shake .35s}
+.pill .pw{font-size:1.2rem;color:var(--ink)}
+@keyframes pop{0%{transform:scale(1.5)}100%{transform:none}}
 .ql{font-size:.74rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700;margin:18px 0 8px;line-height:1.35}
 .tag{display:inline-block;background:var(--acc);color:#fff;border-radius:99px;padding:2px 10px;font-size:.72rem;margin-bottom:6px;letter-spacing:.04em}
 .qq{font-family:"Bricolage Grotesque",sans-serif;font-size:1.32rem;font-weight:700;line-height:1.28;margin:0 0 18px;text-wrap:pretty}
@@ -207,8 +208,7 @@ svg{display:block}
 .banner b{display:block;font-family:"Bricolage Grotesque",sans-serif;font-size:1.7rem;font-weight:800;letter-spacing:.01em;white-space:nowrap}
 .banner .bx{width:78px;height:78px;margin:0 auto 4px;color:var(--acc)}
 .banner .bx svg{width:100%;height:100%}
-.banner .dots{display:flex;gap:6px;justify-content:center;margin-bottom:8px}
-.banner .dots i{width:20px;height:20px;border-radius:50%;background:var(--acc)}
+
 @keyframes boom{0%{opacity:0;transform:translate(-50%,-50%) scale(.6)}15%{opacity:1;transform:translate(-50%,-50%) scale(1.06)}25%{transform:translate(-50%,-50%) scale(1)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-60%) scale(1)}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 
@@ -401,7 +401,6 @@ function tone(f, t0, d, type = "sine", g = .12) {
 const SFX = {
   ok() { tone(784, 0, .12); tone(1175, .07, .2); },
   ko() { tone(196, 0, .2, "triangle", .16); tone(147, .1, .26, "triangle", .14); },
-  p4() { [523, 659, 784, 1047].forEach((f, i) => tone(f, i * .085, .22, "square", .05)); tone(1319, .36, .4, "sine", .1); },
   goal() { [659, 784, 988, 1319].forEach((f, i) => tone(f, i * .1, .3, "triangle", .1)); },
   end() { [523, 784, 1047].forEach((f, i) => tone(f, i * .12, .35, "sine", .1)); },
   tap() { tone(600, 0, .05, "sine", .04); },
@@ -422,7 +421,7 @@ function rain(colors, n = 40) {
 function floatTxt(t) { if (reduced()) return; const e = document.createElement("div"); e.className = "float"; e.textContent = t; document.body.appendChild(e); setTimeout(() => e.remove(), 1100); }
 function banner(title, sub, glyph) {
   const e = document.createElement("div"); e.className = "banner";
-  e.innerHTML = `${glyph ? `<div class="bx">${XF}</div>` : '<div class="dots"><i></i><i></i><i></i><i></i></div>'}<b>${esc(title)}</b><span>${esc(sub)}</span>`;
+  e.innerHTML = `${glyph ? `<div class="bx">${XF}</div>` : ""}<b>${esc(title)}</b><span>${esc(sub)}</span>`;
   document.body.appendChild(e); setTimeout(() => e.remove(), 1600);
 }
 function toast(t) { const e = document.createElement("div"); e.className = "toast"; e.textContent = t; document.body.appendChild(e); setTimeout(() => e.remove(), 2600); }
@@ -545,7 +544,6 @@ function curItem() {
 function renderQuiz() {
   const { it, q } = curItem(); setAcc(it.sid);
   const n = Q.items.length, answered = Q.cur.pick !== null;
-  const fill = Q.combo % 4 === 0 && Q.combo > 0 && answered ? 4 : Q.combo % 4;
   const anim = Q.cur.anim;
   const opts = Q.cur.order.map((ai, j) => {
     let cls = "", mk = "";
@@ -564,19 +562,16 @@ function renderQuiz() {
     <button class="btn ${ok ? "acc" : "primary"}" data-a="next" style="${ok ? "--acc:var(--ok)" : ""}">${Q.i + 1 >= n ? "Voir mon score" : "Continuer"}</button></div></div>` : "";
   $app.innerHTML = `
   <div class="qtop"><button class="icbtn" data-a="quit" aria-label="Arrêter la série">${I.close}</button><div class="bar"><i style="width:${pct(Q.i + (answered ? 1 : 0), n)}%"></i></div><span class="cnt">${Q.i + 1}/${n}</span></div>
-  ${slotsHTML(fill, anim)}
+  ${powerHTML(Q.combo, anim)}
   <p class="ql">${Q.mode === "express" ? `<span class="tag">${esc(DATA[it.sid].name)}</span><br>` : ""}${esc(label(it.sid, q.o))}</p>
   <h2 class="qq">${esc(q.q)}</h2>
   <div class="opts">${opts}</div>
   ${answered ? '<div class="spacer"></div>' : ""}${sheet}`;
   if (answered) { const b = $app.querySelector('[data-a="next"]'); if (b) b.focus({ preventScroll: true }); }
 }
-function slotsHTML(fill, anim) {
-  return `<div class="combo" aria-label="Série en cours : ${fill} sur 4">${[0, 1, 2, 3].map(i => {
-    const on = i < fill; const a = anim === "out" ? " out" : "";
-    const st = on && !(anim === "in" && i === fill - 1) ? ' style="animation:none"' : "";
-    return `<span class="slot${on ? " on" : ""}${a}"${st}></span>`;
-  }).join("")}<span class="pw" aria-hidden="true">x<sup>${fill}</sup></span></div>`;
+function powerHTML(n, anim) {
+  const cls = n === 0 ? (anim === "out" ? "zero down" : "zero") : (anim === "in" ? "up" : "");
+  return `<div class="combo" aria-label="${n} bonne${n > 1 ? "s" : ""} réponse${n > 1 ? "s" : ""} de suite"><span class="pw ${cls}" aria-hidden="true">x<sup>${n}</sup></span><small>${n ? `${n} bonne${n > 1 ? "s" : ""} réponse${n > 1 ? "s" : ""} de suite` : "Réponds juste pour monter en puissance"}</small></div>`;
 }
 const OKM = ["Bien joué !", "Exact !", "Parfait !", "Bravo !", "Juste !", "Excellent !", "Yes !"];
 const KOM = ["Pas cette fois", "Raté, retiens bien celle-là", "Faux, tu la reverras", "Oups"];
@@ -590,8 +585,8 @@ function answer(ai) {
   if (ok) { s.k++; s.s = (s.s || 0) + 1; s.l = true; if (s.e && s.s >= KEEP) s.e = false; }
   else { s.s = 0; s.e = true; s.l = false; }
   p[it.id] = s;
-  let gain = ok ? 10 : 2, p4 = false;
-  if (ok) { Q.combo++; Q.best = Math.max(Q.best, Q.combo); if (Q.combo % 4 === 0) { p4 = true; gain += 20; Q.p4++; S.p4 = (S.p4 || 0) + 1; } Q.cur.anim = "in"; }
+  const gain = ok ? 10 : 2;
+  if (ok) { Q.combo++; Q.best = Math.max(Q.best, Q.combo); Q.cur.anim = "in"; }
   else { Q.cur.anim = Q.combo > 0 ? "out" : null; Q.combo = 0; }
   S.best = Math.max(S.best || 0, Q.best);
   const before = S.days[today()] || 0; S.days[today()] = before + 1;
@@ -603,9 +598,8 @@ function answer(ai) {
   sfx(ok ? "ok" : "ko"); say(ok ? "Juste" : "Faux");
   renderQuiz();
   floatTxt("+" + gain);
-  if (p4) { setTimeout(() => { sfx("p4"); banner("PUISSANCE 4 !", "4 bonnes réponses de suite · +20 XP", true); rain([getComputedStyle(document.documentElement).getPropertyValue(`--${it.sid}`).trim() || "#000", "#000", "#fff"], 22); }, 250); }
-  if (before < S.goal && before + 1 >= S.goal) setTimeout(() => { sfx("goal"); banner("OBJECTIF DU JOUR", `${S.goal} questions, bravo !`); }, p4 ? 1700 : 300);
-  if (L1 > L0) setTimeout(() => { sfx("goal"); banner(`NIVEAU ${L1}`, "Tu montes de niveau !"); }, p4 ? 3300 : 1700);
+  if (before < S.goal && before + 1 >= S.goal) setTimeout(() => { sfx("goal"); banner("OBJECTIF DU JOUR", `${S.goal} questions, bravo !`); }, 300);
+  if (L1 > L0) setTimeout(() => { sfx("goal"); banner(`NIVEAU ${L1}`, "Tu montes de niveau !"); }, 1700);
 }
 function next() {
   if (!Q) return;
@@ -624,7 +618,7 @@ function renderEnd() {
   <div class="end">
     <h1>${title}</h1>
     <div class="score">${good}<small> / ${n}</small></div>
-    <div class="pills"><span class="pill">${I.bolt} +${Q.xp} XP</span><span class="pill">${XF} ${Q.p4} × Puissance 4</span><span class="pill">${I.flame} série max ${Q.best}</span></div>
+    <div class="pills"><span class="pill">${I.bolt} +${Q.xp} XP</span><span class="pill"><span class="pw">x<sup>${Q.best}</sup></span> puissance max</span></div>
     ${runInfo}
     <div class="goalbox"><b>Objectif du jour · ${t} / ${S.goal}</b><div class="bar"><i style="width:${Math.min(100, pct(t, S.goal))}%"></i></div>${t >= S.goal ? "<span>Objectif atteint, ta série de jours continue.</span>" : `<span>Encore ${S.goal - t} question${S.goal - t > 1 ? "s" : ""} aujourd'hui.</span>`}</div>
     <div class="endbtns">
