@@ -170,6 +170,8 @@ svg{display:block}
 .opt:disabled{opacity:1;cursor:default}
 .opt.dim{opacity:.45}
 .opt.ok .mk{color:var(--ok)} .opt.ko .mk{color:var(--ko)}
+.btn.skip{border-style:dashed;box-shadow:none;color:var(--muted);font-weight:600;font-size:.95rem;padding:12px 14px;margin-top:2px}
+.btn.skip:active:not(:disabled){transform:none;box-shadow:none}
 @keyframes shake{0%,100%{transform:none}20%{transform:translateX(-7px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
 .spacer{height:260px}
 .sheet{position:fixed;left:0;right:0;bottom:0;z-index:40;padding:18px max(16px,env(safe-area-inset-left,0px)) calc(18px + env(safe-area-inset-bottom,0px));
@@ -576,9 +578,10 @@ function renderQuiz() {
     }
     return `<button class="btn opt ${cls}" data-a="ans" data-i="${ai}" ${answered ? "disabled" : ""}><span class="k">${"ABCD"[j]}</span><span>${esc(q.a[ai])}</span><span class="mk">${mk}</span></button>`;
   }).join("");
-  const ok = answered && Q.cur.pick === 0;
+  const ok = answered && Q.cur.pick === 0, skipped = Q.cur.pick === -1;
   const sheet = answered ? `<div class="sheet" style="--fc:var(--${ok ? "ok" : "ko"});--fb:var(--${ok ? "okbg" : "kobg"})" role="status"><div class="in">
     <h3>${ok ? I.okc : I.koc}${esc(Q.cur.msg)}<span class="xp">+${Q.cur.gain} XP</span></h3>
+    ${skipped ? "<p>Elle est rangée dans tes erreurs : tu la reverras quand tu auras revu le thème.</p>" : ""}
     ${ok ? "" : `<p><b>Bonne réponse :</b> ${esc(q.a[0])}</p>`}
     <p>${esc(q.x)}</p>
     <button class="btn ${ok ? "acc" : "primary"}" data-a="next" style="${ok ? "--acc:var(--ok)" : ""}">${Q.i + 1 >= n ? "Voir mon score" : "Continuer"}</button></div></div>` : "";
@@ -587,7 +590,7 @@ function renderQuiz() {
   ${powerHTML(Q.combo, anim)}
   <p class="ql">${["express", "gall", "gerr"].includes(Q.mode) ? `<span class="tag">${esc(DATA[it.sid].name)}</span><br>` : ""}${esc(label(it.sid, q.o))}</p>
   <h2 class="qq">${esc(q.q)}</h2>
-  <div class="opts">${opts}</div>
+  <div class="opts">${opts}${answered ? "" : `<button class="btn skip" data-a="skip">Je ne sais pas · passer</button>`}</div>
   ${answered ? '<div class="spacer"></div>' : ""}${sheet}`;
   if (answered) { const b = $app.querySelector('[data-a="next"]'); if (b) b.focus({ preventScroll: true }); }
 }
@@ -615,9 +618,9 @@ function answer(ai) {
   const L0 = lvl(S.xp).n; S.xp += gain; Q.xp += gain; const L1 = lvl(S.xp).n;
   if (Q.mode === "all" || Q.mode === "gall") { const r = runOf(Q.mode === "gall" ? "all" : Q.sid); r.i = Math.min(r.i + 1, r.order.length); }
   Q.res.push({ sid: it.sid, id: it.id, ok });
-  Q.cur.gain = gain; Q.cur.msg = ok ? rnd(OKM) : rnd(KOM);
+  Q.cur.gain = gain; Q.cur.msg = ok ? rnd(OKM) : ai === -1 ? "Question passée" : rnd(KOM);
   save(it.sid);
-  sfx(ok ? "ok" : "ko"); say(ok ? "Juste" : "Faux");
+  if (ai !== -1) sfx(ok ? "ok" : "ko"); say(ok ? "Juste" : ai === -1 ? "Passée" : "Faux");
   renderQuiz();
   floatTxt("+" + gain);
   if (before < S.goal && before + 1 >= S.goal) setTimeout(() => { sfx("goal"); banner("OBJECTIF DU JOUR", `${S.goal} questions, bravo !`); }, 300);
@@ -690,6 +693,7 @@ const ACT = {
   chapgo: b => startQuiz("chap", V.sid, +b.dataset.n),
   obj: b => startQuiz("obj", V.sid, b.dataset.o),
   ans: b => answer(+b.dataset.i),
+  skip: () => answer(-1),   // « Je ne sais pas » : la question va dans les erreurs, sans répondre au hasard
   next: () => next(),
   quit: () => { if (Q && Q.res.length) { V = { name: "end" }; render(); window.scrollTo(0, 0); } else history.back(); },
   again: () => startQuiz(Q.mode, Q.sid, Q.arg, true),
