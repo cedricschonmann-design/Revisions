@@ -242,7 +242,7 @@ const SUBJECTS = [
   { id: "bio", name: "Biologie" }, { id: "his", name: "Histoire" }, { id: "phy", name: "Physique" },
   { id: "chi", name: "Chimie" }, { id: "geo", name: "Géographie" }, { id: "art", name: "Arts visuels" },
 ];
-const KEEP = 2, SESSION = 15, RUNLEN = 50, LS = "revisions-v2", OLD = "matu-revisions-v1";
+const KEEP = 1, SESSION = 15, RUNLEN = 50, LS = "revisions-v2", OLD = "matu-revisions-v1";
 const IN_FRAME = (() => { try { return window.top !== window; } catch (e) { return true; } })();
 const STANDALONE = (() => { try { return navigator.standalone === true || matchMedia("(display-mode: standalone)").matches; } catch (e) { return false; } })();
 const DATA = {};
@@ -256,8 +256,11 @@ function load() {
   if (!s) { s = blank(); try { const o = JSON.parse(localStorage.getItem(OLD) || "null"); if (o && typeof o === "object") s.p = o; } catch (e) {} }
   s = Object.assign(blank(), s);
   if ((s.v || 2) < 3) { s.goal = 50; s.v = 3; }  // méthode du 22 octobre 2026 : 50 questions par jour
+  tidyErr(s);
   return s;
 }
+// depuis le 26 octobre 2026, une seule bonne réponse fait sortir une question des erreurs, y compris pour les anciennes
+function tidyErr(st) { for (const q of Object.values(st.p || {})) for (const v of Object.values(q || {})) if (v && v.e && (v.s || 0) >= KEEP) v.e = false; }
 let S = load();
 let DB = null, UID = null, dbOK = true;
 let storeLabel = IN_FRAME ? "Ta progression est gardée sur cet appareil." : "Ta progression est gardée sur ce téléphone.";
@@ -276,6 +279,7 @@ function mergeP(a, b) {
 }
 function mergeState(remote, rt) {
   for (const sid of Object.keys(remote.p || {})) S.p[sid] = mergeP(S.p[sid], remote.p[sid]);
+  tidyErr(S);
   const m = remote.meta;
   if (m) {
     S.xp = Math.max(S.xp || 0, m.xp || 0); S.p4 = Math.max(S.p4 || 0, m.p4 || 0); S.best = Math.max(S.best || 0, m.best || 0);
@@ -339,6 +343,11 @@ function stats(sid, ids) {
   return { total: ids.length, seen, good, errs, p: pct(good, ids.length) };
 }
 const allIds = sid => DATA[sid] ? DATA[sid].questions.map(q => q.id) : [];
+const G_OUT = "art";                                  // le programme global laisse de côté les arts visuels
+const gSubs = () => SUBJECTS.map(s => s.id).filter(id => id !== G_OUT && DATA[id]);
+const sidOf = id => id.split("-")[0];                   // les identifiants commencent par le code de la matière
+const gIds = () => gSubs().flatMap(s => allIds(s));
+const gErrIds = () => gSubs().flatMap(s => errIds(s));
 const errIds = sid => allIds(sid).filter(id => st(sid, id)?.e);
 const chapIds = (sid, n) => DATA[sid].questions.filter(q => q.o.split(".")[0] === String(n)).map(q => q.id);
 const objIds = (sid, o) => DATA[sid].questions.filter(q => q.o === o).map(q => q.id);
@@ -354,10 +363,11 @@ function label(sid, o) {
 }
 function starsOf(p) { return p >= 90 ? 3 : p >= 60 ? 2 : p >= 30 ? 1 : 0; }
 function runOf(sid) {
-  const ids = allIds(sid); let r = S.run[sid];
+  const ids = sid === "all" ? gIds() : allIds(sid); let r = S.run[sid];
   if (!r || !Array.isArray(r.order)) r = { order: shuffle(ids), i: 0 };
   const set = new Set(ids); const known = new Set(r.order);
-  r.order = r.order.filter(id => set.has(id)).concat(shuffle(ids.filter(id => !known.has(id))));
+  // une matière pas encore chargée garde sa place dans l'ordre du programme global
+  r.order = r.order.filter(id => set.has(id) || (sid === "all" && !DATA[sidOf(id)] && sidOf(id) !== G_OUT)).concat(shuffle(ids.filter(id => !known.has(id))));
   r.i = Math.min(r.i || 0, r.order.length);
   S.run[sid] = r; return r;
 }
@@ -462,6 +472,7 @@ function renderHome() {
     const x = stats(s.id, allIds(s.id));
     return `<button class="subj" style="--c:var(--${s.id})" data-a="subj" data-s="${s.id}"><span class="nm">${s.name}</span><span class="big">${x.p}%</span><span class="bar"><i style="width:${x.p}%"></i></span><small>${fmt(x.total)} questions${x.errs ? ` · ${x.errs} erreur${x.errs > 1 ? "s" : ""}` : ""}</small></button>`;
   }).join("");
+  const gr = runOf("all"), gdone = gr.i >= gr.order.length, ge = gErrIds().length, gn = gSubs().length;
   const showHint = !IN_FRAME && !STANDALONE && !S.hint;
   $app.innerHTML = `
   <div class="top"><div class="logo">${LOGO}</div><h1 class="grow">Révisions</h1><button class="icbtn" data-a="settings" aria-label="Réglages">${I.gear}</button></div>
@@ -475,6 +486,11 @@ function renderHome() {
     </div>
   </section>
   <div style="margin-top:16px"><button class="btn primary cta" data-a="express"><span class="mi">${I.play}</span><span class="grow"><b>Série express</b><small>${SESSION} questions, toutes les matières mélangées</small></span>${I.chev}</button></div>
+  <div class="sec"><h2>Toutes les matières</h2><span class="muted" style="font-size:.85rem">sans arts visuels</span></div>
+  <div class="modes" style="margin-top:10px">
+    <button class="btn mode" data-a="gall"><span class="mi ink">${I.all}</span><span><b>Tout le programme</b><small>${gdone ? "Terminé ! Touche pour recommencer" : `${fmt(gr.i)} / ${fmt(gr.order.length)} · ${gn} matières mélangées, séries de ${RUNLEN}`}</small><span class="bar"><i style="width:${pct(gr.i, gr.order.length)}%"></i></span></span><span class="go">${I.chev}</span></button>
+    <button class="btn mode" data-a="gerr" ${ge ? "" : "disabled"}><span class="mi ink">${I.redo}</span><span><b>Mes erreurs · ${ge}</b><small>${ge ? "Toutes les matières, dans le désordre. Une question en sort dès que tu y réponds juste" : "Aucune erreur pour l'instant"}</small></span><span class="go">${I.chev}</span></button>
+  </div>
   <div class="sec"><h2>Matières</h2><span class="muted" style="font-size:.85rem">${fmt(SUBJECTS.reduce((n, s) => n + (DATA[s.id]?.questions.length || 0), 0))} questions</span></div>
   <div class="grid">${cards}</div>
   ${showHint ? installHint() : ""}
@@ -510,7 +526,7 @@ function renderSubject() {
   <div class="modes">
     <button class="btn mode" data-a="mix"><span class="mi">${I.play}</span><span><b>Série rapide</b><small>${SESSION} questions, d'abord les nouvelles et les ratées</small></span><span class="go">${I.chev}</span></button>
     <button class="btn mode" data-a="all"><span class="mi ink">${I.all}</span><span><b>Tout le programme</b><small>${done ? "Terminé ! Touche pour recommencer" : `${fmt(r.i)} / ${fmt(r.order.length)} · séries de ${RUNLEN}, reprends où tu t'es arrêté`}</small><span class="bar"><i style="width:${pct(r.i, r.order.length)}%"></i></span></span><span class="go">${I.chev}</span></button>
-    <button class="btn mode" data-a="err" ${errs ? "" : "disabled"}><span class="mi ink">${I.redo}</span><span><b>Mes erreurs · ${errs}</b><small>${errs ? `Une question en sort après ${KEEP} bonnes réponses de suite` : "Aucune erreur pour l'instant"}</small></span><span class="go">${I.chev}</span></button>
+    <button class="btn mode" data-a="err" ${errs ? "" : "disabled"}><span class="mi ink">${I.redo}</span><span><b>Mes erreurs · ${errs}</b><small>${errs ? "Une question en sort dès que tu y réponds juste" : "Aucune erreur pour l'instant"}</small></span><span class="go">${I.chev}</span></button>
   </div>
   <div class="sec"><h2>Thèmes</h2><span class="muted" style="font-size:.85rem">${D.chapters.length} thèmes</span></div>
   ${chaps}
@@ -527,6 +543,12 @@ function startQuiz(mode, sid, arg, replace) {
   else if (mode === "err") { items = pick(sid, errIds(sid), SESSION).map(id => ({ sid, id })); title = "Mes erreurs"; }
   else if (mode === "chap") { items = pick(sid, chapIds(sid, arg), SESSION).map(id => ({ sid, id })); title = DATA[sid].chapters.find(c => c.n === arg).name; }
   else if (mode === "obj") { items = shuffle(objIds(sid, arg)).map(id => ({ sid, id })); title = "Objectif " + arg; }
+  else if (mode === "gall") {
+    const r = runOf("all"); if (r.i >= r.order.length) { r.order = shuffle(gIds()); r.i = 0; }
+    items = r.order.slice(r.i, r.i + RUNLEN).filter(id => DATA[sidOf(id)]).map(id => ({ sid: sidOf(id), id })); title = "Tout le programme · toutes les matières"; sid = null; save();
+  } else if (mode === "gerr") {
+    items = shuffle(gErrIds()).slice(0, RUNLEN).map(id => ({ sid: sidOf(id), id })); title = "Mes erreurs · toutes les matières"; sid = null;
+  }
   else if (mode === "all") {
     const r = runOf(sid); if (r.i >= r.order.length) { r.order = shuffle(allIds(sid)); r.i = 0; }
     items = r.order.slice(r.i, r.i + RUNLEN).map(id => ({ sid, id })); title = "Tout le programme"; save();
@@ -563,7 +585,7 @@ function renderQuiz() {
   $app.innerHTML = `
   <div class="qtop"><button class="icbtn" data-a="quit" aria-label="Arrêter la série">${I.close}</button><div class="bar"><i style="width:${pct(Q.i + (answered ? 1 : 0), n)}%"></i></div><span class="cnt">${Q.i + 1}/${n}</span></div>
   ${powerHTML(Q.combo, anim)}
-  <p class="ql">${Q.mode === "express" ? `<span class="tag">${esc(DATA[it.sid].name)}</span><br>` : ""}${esc(label(it.sid, q.o))}</p>
+  <p class="ql">${["express", "gall", "gerr"].includes(Q.mode) ? `<span class="tag">${esc(DATA[it.sid].name)}</span><br>` : ""}${esc(label(it.sid, q.o))}</p>
   <h2 class="qq">${esc(q.q)}</h2>
   <div class="opts">${opts}</div>
   ${answered ? '<div class="spacer"></div>' : ""}${sheet}`;
@@ -591,7 +613,7 @@ function answer(ai) {
   S.best = Math.max(S.best || 0, Q.best);
   const before = S.days[today()] || 0; S.days[today()] = before + 1;
   const L0 = lvl(S.xp).n; S.xp += gain; Q.xp += gain; const L1 = lvl(S.xp).n;
-  if (Q.mode === "all") { const r = runOf(Q.sid); r.i = Math.min(r.i + 1, r.order.length); }
+  if (Q.mode === "all" || Q.mode === "gall") { const r = runOf(Q.mode === "gall" ? "all" : Q.sid); r.i = Math.min(r.i + 1, r.order.length); }
   Q.res.push({ sid: it.sid, id: it.id, ok });
   Q.cur.gain = gain; Q.cur.msg = ok ? rnd(OKM) : rnd(KOM);
   save(it.sid);
@@ -613,7 +635,7 @@ function renderEnd() {
   const t = S.days[today()] || 0;
   const miss = Q.res.filter(r => !r.ok).map(r => { const q = qById(r.sid, r.id); return `<div class="m"><span>${esc(q.q)}</span><span><b>✓ ${esc(q.a[0])}</b></span><span class="muted">${esc(q.x)}</span></div>`; }).join("");
   let runInfo = "";
-  if (Q.mode === "all") { const r = runOf(Q.sid); runInfo = `<div class="goalbox"><b>Tout le programme · ${fmt(r.i)} / ${fmt(r.order.length)}</b><div class="bar" style="color:var(--acc)"><i style="width:${pct(r.i, r.order.length)}%"></i></div>${r.i >= r.order.length ? "<span>Tu as fait toutes les questions de la matière !</span>" : ""}</div>`; }
+  if (Q.mode === "all" || Q.mode === "gall") { const g = Q.mode === "gall", r = runOf(g ? "all" : Q.sid); runInfo = `<div class="goalbox"><b>Tout le programme${g ? " · toutes les matières" : ""} · ${fmt(r.i)} / ${fmt(r.order.length)}</b><div class="bar" style="color:var(--acc)"><i style="width:${pct(r.i, r.order.length)}%"></i></div>${r.i >= r.order.length ? `<span>Tu as fait toutes les questions ${g ? "des matières" : "de la matière"} !</span>` : ""}</div>`; }
   $app.innerHTML = `
   <div class="end">
     <h1>${title}</h1>
@@ -622,7 +644,7 @@ function renderEnd() {
     ${runInfo}
     <div class="goalbox"><b>Objectif du jour · ${t} / ${S.goal}</b><div class="bar"><i style="width:${Math.min(100, pct(t, S.goal))}%"></i></div>${t >= S.goal ? "<span>Objectif atteint, ta série de jours continue.</span>" : `<span>Encore ${S.goal - t} question${S.goal - t > 1 ? "s" : ""} aujourd'hui.</span>`}</div>
     <div class="endbtns">
-      <button class="btn acc" data-a="again">${Q.mode === "all" && runOf(Q.sid).i < runOf(Q.sid).order.length ? "Continuer le programme" : "Encore une série"}</button>
+      <button class="btn acc" data-a="again" ${Q.mode === "gerr" && !gErrIds().length ? "disabled" : ""}>${(Q.mode === "all" || Q.mode === "gall") && (r => r.i < r.order.length)(runOf(Q.mode === "gall" ? "all" : Q.sid)) ? "Continuer le programme" : Q.mode === "gerr" && !gErrIds().length ? "Plus aucune erreur !" : "Encore une série"}</button>
       <button class="btn" data-a="leave" style="justify-content:center">Retour</button>
     </div>
     ${miss ? `<details class="miss"><summary>À revoir · ${n - good} question${n - good > 1 ? "s" : ""}</summary>${miss}</details>` : ""}
@@ -659,6 +681,8 @@ const ACT = {
   settings: () => openSettings(),
   closem: () => closeModal(),
   express: () => startQuiz("express"),
+  gall: () => startQuiz("gall"),
+  gerr: () => startQuiz("gerr"),
   mix: () => startQuiz("mix", V.sid),
   all: () => startQuiz("all", V.sid),
   err: () => startQuiz("err", V.sid),

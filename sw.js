@@ -1,5 +1,5 @@
 // Service worker de Révisions : l'appli marche hors ligne, et se met à jour toute seule au lancement suivant.
-const CACHE = "revisions-08de7aa48c";
+const CACHE = "revisions-0098d810c3";
 const CORE = ["./", "index.html", "manifest.webmanifest", "icon-180.png", "icon-192.png", "icon-512.png", "icon-maskable-512.png", "bio.json", "his.json", "phy.json", "chi.json", "geo.json", "art.json"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(CORE)).then(() => self.skipWaiting())); });
 self.addEventListener("activate", e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k.startsWith("revisions-") && k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
