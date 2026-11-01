@@ -228,6 +228,10 @@ svg{display:block}
 .switch[aria-checked="true"]{background:var(--ink)}
 .switch[aria-checked="true"]::after{left:28px;background:var(--bg)}
 .note{font-size:.85rem;color:var(--muted);margin:0}
+[hidden]{display:none!important}
+.code{width:100%;min-height:76px;resize:vertical;font:.78rem/1.35 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--ink);background:var(--card);border:2px solid var(--line);border-radius:14px;padding:10px 12px;word-break:break-all;box-sizing:border-box}
+.code:focus{outline:2px solid var(--ink);outline-offset:1px}
+#codebox{display:grid;gap:8px}
 .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);border-radius:14px;padding:12px 16px;font-weight:700;z-index:90;max-width:calc(100% - 32px);animation:up .2s ease}
 .splash{min-height:70vh;display:grid;place-items:center;text-align:center;gap:14px}
 .splash .logo{width:84px;height:84px;border-radius:22px}
@@ -436,7 +440,7 @@ function banner(title, sub, glyph) {
   e.innerHTML = `${glyph ? `<div class="bx">${XF}</div>` : ""}<b>${esc(title)}</b><span>${esc(sub)}</span>`;
   document.body.appendChild(e); setTimeout(() => e.remove(), 1600);
 }
-function toast(t) { const e = document.createElement("div"); e.className = "toast"; e.textContent = t; document.body.appendChild(e); setTimeout(() => e.remove(), 2600); }
+function toast(t) { document.querySelectorAll(".toast").forEach(x => x.remove()); const e = document.createElement("div"); e.className = "toast"; e.textContent = t; document.body.appendChild(e); setTimeout(() => e.remove(), 2600); }
 const say = t => { const l = document.getElementById("live"); if (l) l.textContent = t; };
 
 /* ---------- navigation ---------- */
@@ -655,6 +659,34 @@ function renderEnd() {
   if (n && p >= 60) rain([getComputedStyle(document.documentElement).getPropertyValue("--acc").trim() || "#000", "#000", "#9a9a9a"].map(c => c.startsWith("var") ? "#000" : c), p >= 90 ? 60 : 34);
 }
 
+/* ---------- sauvegarde de la progression : un code à copier, puis à coller dans l'appli réinstallée ---------- */
+const B64 = {
+  enc(u8) { let s = ""; for (let i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000)); return btoa(s); },
+  dec(b) { const s = atob(b); const u = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) u[i] = s.charCodeAt(i); return u; }
+};
+async function pipeBytes(u8, T) { return new Uint8Array(await new Response(new Blob([u8]).stream().pipeThrough(T)).arrayBuffer()); }
+async function makeCode() {
+  const json = new TextEncoder().encode(JSON.stringify(S));
+  if (typeof CompressionStream === "function") { try { return "MATU-Z:" + B64.enc(await pipeBytes(json, new CompressionStream("deflate-raw"))); } catch (e) {} }
+  return "MATU-J:" + B64.enc(json);
+}
+async function readCode(txt) {
+  const t = String(txt || "").replace(/\s+/g, "");
+  const m = t.match(/^MATU-([ZJ]):([A-Za-z0-9+/=]+)$/); if (!m) throw new Error("format");
+  let u = B64.dec(m[2]);
+  if (m[1] === "Z") { if (typeof DecompressionStream !== "function") throw new Error("old"); u = await pipeBytes(u, new DecompressionStream("deflate-raw")); }
+  const b = JSON.parse(new TextDecoder().decode(u));
+  if (!b || typeof b !== "object" || !b.p || typeof b.p !== "object") throw new Error("format");
+  return b;
+}
+async function restoreCode(txt) {
+  const b = await readCode(txt);
+  // fusion : pour chaque question on garde la réponse la plus récente, rien n'est effacé
+  mergeState({ p: b.p, meta: metaOf(Object.assign(blank(), b)) }, b.mt || 0);
+  for (const s of SUBJECTS) dirty.add(s.id);
+  save();
+}
+
 /* ---------- réglages ---------- */
 function closeModal() { document.querySelector(".modal")?.remove(); }
 function openSettings() {
@@ -664,6 +696,14 @@ function openSettings() {
     <div class="row"><h2 class="grow">Réglages</h2><button class="icbtn" data-a="closem" aria-label="Fermer">${I.close}</button></div>
     <div class="set"><b>Objectif du jour</b><div class="seg">${[30, 50, 80, 100].map(g => `<button class="btn ${S.goal === g ? "on" : ""}" data-a="goal" data-g="${g}">${g}</button>`).join("")}</div><p class="note">Nombre de questions par jour pour garder ta série de jours.</p></div>
     <div class="set"><div class="row"><b class="grow disp">Sons</b><button class="switch" role="switch" aria-checked="${S.sound}" aria-label="Sons" data-a="sound"></button></div></div>
+    <div class="set"><b>Sauvegarder ma progression</b>
+      <p class="note">Avant de supprimer l'appli ou de changer de téléphone : crée ton code, copie-le et garde-le, par exemple dans Notes. Tu le colleras ensuite dans la nouvelle appli.</p>
+      <button class="btn" data-a="mkcode" style="justify-content:center">Créer mon code de sauvegarde</button>
+      <div id="codebox" hidden><textarea class="code" id="codeout" readonly rows="3" aria-label="Ton code de sauvegarde"></textarea><button class="btn primary" data-a="copycode">Copier le code</button></div></div>
+    <div class="set"><b>Restaurer ma progression</b>
+      <textarea class="code" id="codein" rows="3" placeholder="Colle ici ton code de sauvegarde" aria-label="Code de sauvegarde à restaurer" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"></textarea>
+      <button class="btn" data-a="restore" style="justify-content:center">Restaurer</button>
+      <p class="note">Rien n'est effacé : ta progression actuelle et celle du code sont réunies.</p></div>
     <div class="set"><b>Tout effacer</b><button class="btn" data-a="wipe" data-c="0" style="justify-content:center">Remettre toute l'appli à zéro</button></div>
     <p class="note">${esc(storeLabel)}</p>
   </div>`;
@@ -702,6 +742,27 @@ const ACT = {
   install: async () => { if (!deferredPrompt) return; deferredPrompt.prompt(); try { await deferredPrompt.userChoice; } catch (e) {} deferredPrompt = null; render(); },
   goal: b => { S.goal = +b.dataset.g; save(); openSettings(); render(); },
   sound: b => { S.sound = !S.sound; save(); b.setAttribute("aria-checked", S.sound); if (S.sound) sfx("ok"); },
+  mkcode: async b => {
+    b.disabled = true; b.textContent = "Création du code…";
+    try {
+      const code = await makeCode(); const o = document.getElementById("codeout"); if (!o) return;
+      o.value = code; document.getElementById("codebox").hidden = false; b.textContent = "Recréer mon code";
+    } catch (e) { b.textContent = "Créer mon code de sauvegarde"; toast("Impossible de créer le code."); }
+    b.disabled = false;
+  },
+  copycode: b => {
+    const o = document.getElementById("codeout"); if (!o || !o.value) return;
+    const done = () => { b.textContent = "Code copié ✓"; toast("Code copié. Colle-le dans Notes pour le garder."); };
+    const byHand = () => { o.focus(); o.setSelectionRange(0, o.value.length); let ok = false; try { ok = document.execCommand("copy"); } catch (e) {} ok ? done() : toast("Le code est sélectionné : copie-le à la main."); };
+    try { navigator.clipboard.writeText(o.value).then(done, byHand); } catch (e) { byHand(); }
+  },
+  restore: async b => {
+    const i = document.getElementById("codein"); const t = (i && i.value || "").trim();
+    if (!t) { toast("Colle d'abord ton code."); if (i) i.focus(); return; }
+    b.disabled = true;
+    try { await restoreCode(t); closeModal(); render(); toast("Progression restaurée ✓"); }
+    catch (e) { b.disabled = false; toast(e && e.message === "old" ? "Ce téléphone est trop ancien pour lire ce code." : "Code pas valide : vérifie que tu l'as collé en entier."); }
+  },
   wipe: b => {
     if (!armed(b, "Touche encore pour tout effacer")) return;
     const keep = { goal: S.goal, sound: S.sound, hint: S.hint }; S = Object.assign(blank(), keep);
