@@ -692,6 +692,16 @@ async function readCode(txt) {
   let out; try { out = (await loadInflate()).inflateRaw(u); } catch (e) { throw new Error("décompression"); }
   try { return parseState(out); } catch (e) { throw new Error("lecture"); }
 }
+async function restoreShort(c) {
+  // code court : la sauvegarde est un fichier du site, r/<code>.json
+  let r; try { r = await fetch(`r/${c}.json`, { cache: "no-store" }); } catch (e) { throw new Error("réseau"); }
+  if (!r.ok) throw new Error("introuvable");
+  let b; try { b = await r.json(); } catch (e) { throw new Error("lecture"); }
+  if (!b || typeof b !== "object" || !b.p || typeof b.p !== "object") throw new Error("lecture");
+  mergeState({ p: b.p, meta: metaOf(Object.assign(blank(), b)) }, b.mt || 0);
+  for (const s of SUBJECTS) dirty.add(s.id);
+  save();
+}
 async function restoreCode(txt) {
   const b = await readCode(txt);
   // fusion : pour chaque question on garde la réponse la plus récente, rien n'est effacé
@@ -714,7 +724,7 @@ function openSettings() {
       <button class="btn" data-a="mkcode" style="justify-content:center">Créer mon code de sauvegarde</button>
       <div id="codebox" hidden><textarea class="code" id="codeout" readonly rows="3" aria-label="Ton code de sauvegarde"></textarea><button class="btn primary" data-a="copycode">Copier le code</button></div></div>
     <div class="set"><b>Restaurer ma progression</b>
-      <textarea class="code" id="codein" rows="3" placeholder="Colle ici ton code de sauvegarde" aria-label="Code de sauvegarde à restaurer" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"></textarea>
+      <textarea class="code" id="codein" rows="3" placeholder="Tape ton code court, ou colle ton long code de sauvegarde" aria-label="Code de sauvegarde à restaurer" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"></textarea>
       <button class="btn" data-a="restore" style="justify-content:center">Restaurer</button>
       <p class="note">Rien n'est effacé : ta progression actuelle et celle du code sont réunies.</p></div>
     <div class="set"><b>Tout effacer</b><button class="btn" data-a="wipe" data-c="0" style="justify-content:center">Remettre toute l'appli à zéro</button></div>
@@ -773,8 +783,9 @@ const ACT = {
     const i = document.getElementById("codein"); const t = (i && i.value || "").trim();
     if (!t) { toast("Colle d'abord ton code."); if (i) i.focus(); return; }
     b.disabled = true;
-    try { await restoreCode(t); closeModal(); render(); toast("Progression restaurée ✓"); }
-    catch (e) { b.disabled = false; const w = e && e.message; toast(w === "début" ? "Le code doit commencer par MATU-Z: — colle-le en entier." : `Code incomplet ou abîmé (étape : ${w === "caractères" || w === "décompression" || w === "lecture" ? w : "inconnue"}). Recolle-le en entier.`); }
+    const short = t.replace(/\s+/g, "").toLowerCase();
+    try { if (/^[a-z0-9]{4,12}$/.test(short)) await restoreShort(short); else await restoreCode(t); closeModal(); render(); toast("Progression restaurée ✓"); }
+    catch (e) { b.disabled = false; const w = e && e.message; toast(w === "réseau" ? "Pas de connexion : réessaie avec internet." : w === "introuvable" ? "Code court inconnu : vérifie les lettres et les chiffres." : w === "début" ? "Le code doit commencer par MATU-Z: — colle-le en entier." : `Code incomplet ou abîmé (étape : ${w === "caractères" || w === "décompression" || w === "lecture" ? w : "inconnue"}). Recolle-le en entier.`); }
   },
   wipe: b => {
     if (!armed(b, "Touche encore pour tout effacer")) return;
