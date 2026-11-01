@@ -670,14 +670,27 @@ async function makeCode() {
   if (typeof CompressionStream === "function") { try { return "MATU-Z:" + B64.enc(await pipeBytes(json, new CompressionStream("deflate-raw"))); } catch (e) {} }
   return "MATU-J:" + B64.enc(json);
 }
-async function readCode(txt) {
-  const t = String(txt || "").replace(/\s+/g, "");
-  const m = t.match(/^MATU-([ZJ]):([A-Za-z0-9+/=]+)$/); if (!m) throw new Error("format");
-  let u = B64.dec(m[2]);
-  if (m[1] === "Z") { if (typeof DecompressionStream !== "function") throw new Error("old"); u = await pipeBytes(u, new DecompressionStream("deflate-raw")); }
-  const b = JSON.parse(new TextDecoder().decode(u));
-  if (!b || typeof b !== "object" || !b.p || typeof b.p !== "object") throw new Error("format");
+function loadInflate() {
+  // décompression de secours, sans l'outil du navigateur : pako, fichier du même site
+  if (window.pako && window.pako.inflateRaw) return Promise.resolve(window.pako);
+  return new Promise((ok, ko) => { const sc = document.createElement("script"); sc.src = "pako_inflate.min.js"; sc.onload = () => window.pako ? ok(window.pako) : ko(new Error("décompression")); sc.onerror = () => ko(new Error("décompression")); document.head.appendChild(sc); });
+}
+function parseState(u8) {
+  const b = JSON.parse(new TextDecoder().decode(u8));
+  if (!b || typeof b !== "object" || !b.p || typeof b.p !== "object") throw new Error("lecture");
   return b;
+}
+async function readCode(txt) {
+  // tolérant : espaces, retours à la ligne, caractères invisibles ou tiret typographique ajoutés au copier-coller
+  const t = String(txt || "");
+  const m = t.match(/MATU\s*[-‐-―−]?\s*([ZJzj])\s*[:：]/);
+  if (!m) throw new Error("début");
+  const body = t.slice(m.index + m[0].length).replace(/[^A-Za-z0-9+/=]/g, "");
+  let u; try { u = B64.dec(body); } catch (e) { throw new Error("caractères"); }
+  if (m[1].toUpperCase() === "J") { try { return parseState(u); } catch (e) { throw new Error("lecture"); } }
+  if (typeof DecompressionStream === "function") { try { return parseState(await pipeBytes(u, new DecompressionStream("deflate-raw"))); } catch (e) {} }
+  let out; try { out = (await loadInflate()).inflateRaw(u); } catch (e) { throw new Error("décompression"); }
+  try { return parseState(out); } catch (e) { throw new Error("lecture"); }
 }
 async function restoreCode(txt) {
   const b = await readCode(txt);
@@ -761,7 +774,7 @@ const ACT = {
     if (!t) { toast("Colle d'abord ton code."); if (i) i.focus(); return; }
     b.disabled = true;
     try { await restoreCode(t); closeModal(); render(); toast("Progression restaurée ✓"); }
-    catch (e) { b.disabled = false; toast(e && e.message === "old" ? "Ce téléphone est trop ancien pour lire ce code." : "Code pas valide : vérifie que tu l'as collé en entier."); }
+    catch (e) { b.disabled = false; const w = e && e.message; toast(w === "début" ? "Le code doit commencer par MATU-Z: — colle-le en entier." : `Code incomplet ou abîmé (étape : ${w === "caractères" || w === "décompression" || w === "lecture" ? w : "inconnue"}). Recolle-le en entier.`); }
   },
   wipe: b => {
     if (!armed(b, "Touche encore pour tout effacer")) return;
